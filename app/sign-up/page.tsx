@@ -1,23 +1,31 @@
-import { auth, signIn } from "@/auth"
-import { Button } from "@mui/material"
+import { auth, signIn } from "@/auth";
+import { Box, Button } from "@mui/material";
 
 const SignupPage = async () => {
-  const session = await auth()
-  console.log(session?.user)
+  const session = await auth();
+  console.log(session?.user);
   return (
-    <div className="flex gap-4 flex-col h-screen items-center justify-center">
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        width: "100%",
+      }}
+    >
       <form
         action={async () => {
-          "use server"
-          await signIn("google")
+          "use server";
+          await signIn("google");
         }}
       >
         <Button type="submit" variant="contained">
           Signin with Google
         </Button>
       </form>
-    </div>
-  )
-}
+    </Box>
+  );
+};
 
-export default SignupPage
+export default SignupPage;
