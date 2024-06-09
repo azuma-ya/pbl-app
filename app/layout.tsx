@@ -3,6 +3,8 @@ import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
 
 import { auth } from "@/auth";
+import ToastProvider from "@/components/providers/ToastProvider";
+import { Box, Container } from "@mui/material";
 
 import "./globals.css";
 
@@ -22,7 +24,16 @@ const RootLayout = async ({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        <SessionProvider session={session}>{children}</SessionProvider>
+        <Box
+          sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
+        >
+          <SessionProvider session={session}>
+            <ToastProvider />
+            <main>
+              <Container sx={{ flex: 1 }}>{children}</Container>
+            </main>
+          </SessionProvider>
+        </Box>
       </body>
     </html>
   );

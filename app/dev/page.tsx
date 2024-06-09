@@ -5,17 +5,7 @@ const DevPage = async () => {
   const session = await auth();
   console.log(session?.user);
   return (
-    <div className="flex gap-4 flex-col h-screen items-center justify-center">
-      {/* <Button
-        type="submit"
-        variant="contained"
-        onClick={() => signIn('google')}
-      >
-        SignIn with Google
-      </Button>
-      <Button type="submit" variant="contained" onClick={() => signOut()}>
-        SignOut
-      </Button> */}
+    <div className="">
       <form
         action={async () => {
           "use server";
