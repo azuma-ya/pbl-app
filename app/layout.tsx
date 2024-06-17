@@ -7,6 +7,7 @@ import ToastProvider from "@/components/providers/ToastProvider";
 import { Box, Container } from "@mui/material";
 
 import Navigation from "@/components/base/Navigation";
+import CustomeThemeProvider from "@/components/providers/themeProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,17 +26,23 @@ const RootLayout = async ({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        <Box
-          sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
-        >
-          <SessionProvider session={session}>
-            <ToastProvider />
-            <Navigation />
-            <main>
-              <Container sx={{ flex: 1 }}>{children}</Container>
-            </main>
-          </SessionProvider>
-        </Box>
+        <CustomeThemeProvider>
+          <Box
+            sx={{
+              display: "flex",
+              minHeight: "100vh",
+              flexDirection: "column",
+            }}
+          >
+            <SessionProvider session={session}>
+              <ToastProvider />
+              <Navigation />
+              <main>
+                <Container sx={{ flex: 1 }}>{children}</Container>
+              </main>
+            </SessionProvider>
+          </Box>
+        </CustomeThemeProvider>
       </body>
     </html>
   );

@@ -1,18 +1,102 @@
-import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+"use client";
+
+import {
+  AppBar,
+  Box,
+  Button,
+  Divider,
+  Menu,
+  MenuItem,
+  Link as MuiLink,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import { signOut } from "next-auth/react";
+import Link from "next/link";
+import { useState } from "react";
 
 const Navigation = () => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleClose();
+    signOut();
+  };
+
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            学校名
-          </Typography>
-          <Button color="inherit">スレッド一覧</Button>
-          <Button color="inherit">名前</Button>
-        </Toolbar>
-      </AppBar>
-    </Box>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ mr: 2 }}>
+          群馬大学
+        </Typography>
+        <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, gap: 2 }}>
+          <Button
+            LinkComponent={Link}
+            color="secondary"
+            variant="contained"
+            href="/"
+          >
+            スレッド一覧
+          </Button>
+          <Button
+            LinkComponent={Link}
+            color="secondary"
+            variant="contained"
+            href="/manual"
+          >
+            マニュアル一覧
+          </Button>
+        </Box>
+        <Button color="inherit" onClick={handleClick}>
+          名前
+        </Button>
+        <Menu
+          id="basic-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          MenuListProps={{
+            "aria-labelledby": "basic-button",
+            sx: { width: 300 },
+          }}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+        >
+          <Box sx={{ marginX: 2 }}>
+            <Typography variant="h6">名前</Typography>
+            <Typography variant="subtitle2">学校名</Typography>
+          </Box>
+          <Divider />
+          <MenuItem onClick={handleClose}>
+            <MuiLink
+              component={Link}
+              href="/school/setting"
+              underline="none"
+              color="inherit"
+            >
+              学校設定
+            </MuiLink>
+          </MenuItem>
+          <MenuItem onClick={handleClose}>新規スレッド</MenuItem>
+          <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
+        </Menu>
+      </Toolbar>
+    </AppBar>
   );
 };
 
