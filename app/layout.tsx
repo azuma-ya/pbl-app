@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import ToastProvider from "@/components/providers/ToastProvider";
 import { Box, Container } from "@mui/material";
 
+import Navigation from "@/components/base/Navigation";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -29,6 +30,7 @@ const RootLayout = async ({
         >
           <SessionProvider session={session}>
             <ToastProvider />
+            <Navigation />
             <main>
               <Container sx={{ flex: 1 }}>{children}</Container>
             </main>
