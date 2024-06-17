@@ -1,8 +1,15 @@
-import { AppBar, Box, Button, IconButton, Toolbar, Typography} from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
+import MenuIcon from "@mui/icons-material/Menu";
+import {
+  AppBar,
+  Box,
+  Button,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 
 const Thread = () => {
-  return  
+  return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
@@ -22,8 +29,11 @@ const Thread = () => {
         </Toolbar>
       </AppBar>
 
-      <Box><Box sx={{backgroundColor:"#aaa",display:"flex"}}>作成者</Box></Box>
-    </Box>;
+      <Box>
+        <Box sx={{ backgroundColor: "#aaa", display: "flex" }}>作成者</Box>
+      </Box>
+    </Box>
+  );
 };
 
 export default Thread;
