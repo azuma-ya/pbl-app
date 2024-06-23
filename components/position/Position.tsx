@@ -1,29 +1,22 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Checkbox from '@mui/material/Checkbox';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import * as React from "react";
 
-
-export default function BasicSelect() {
-  const [age, setAge] = React.useState('');
+const Position = () => {
+  const [age, setAge] = React.useState("");
 
   const handleChange = (event: SelectChangeEvent) => {
     setAge(event.target.value as string);
   };
-
-//const label = { inputProps: { 'aria-labelhsh': 'Checkbox demo' } };
-
-const Position = () => {
-  return
+  return (
     <Box>
-      //"Age"でなく"教員名"にするには？ labelを変更？
-      //教員名の選択
-      <Box sx={{ minWidth: 120, textAlign:"center" }}>
+      //"Age"でなく"教員名"にするには？ labelを変更？ //教員名の選択
+      <Box sx={{ minWidth: 120, textAlign: "center" }}>
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">Age</InputLabel>
           <Select
@@ -33,16 +26,15 @@ const Position = () => {
             label="Age"
             onChange={handleChange}
           >
-             //valueとかは何にしたらよいか？
+            //valueとかは何にしたらよいか？
             <MenuItem value={10}>〇〇先生</MenuItem>
             <MenuItem value={10}>〇〇先生</MenuItem>
             <MenuItem value={10}>〇〇先生</MenuItem>
           </Select>
         </FormControl>
       </Box>
-
       //役職の選択
-      <Box sx={{ minWidth: 120, textAlign:"center" }}>
+      <Box sx={{ minWidth: 120, textAlign: "center" }}>
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">Age</InputLabel>
           <Select
@@ -58,12 +50,16 @@ const Position = () => {
           </Select>
         </FormControl>
       </Box>
-
       //チェックボックス ???
-      <Checkbox {...label} />
-
-      <Button variant="contained" sx={{background:"#2f4f4f", textAlign:"center", padding:"5px,50%"}}>決定</Button>
+      <Checkbox />
+      <Button
+        variant="contained"
+        sx={{ background: "#2f4f4f", textAlign: "center", padding: "5px,50%" }}
+      >
+        決定
+      </Button>
     </Box>
+  );
 };
 
 export default Position;
