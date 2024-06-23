@@ -1,8 +1,15 @@
-import { AppBar, Box, Button, IconButton, Toolbar, Typography} from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
+import MenuIcon from "@mui/icons-material/Menu";
+import {
+  AppBar,
+  Box,
+  Button,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 
 const Thread = () => {
-  return  
+  return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
@@ -21,7 +28,6 @@ const Thread = () => {
           <Button color="inherit">名前</Button>
         </Toolbar>
       </AppBar>
-
       <Box sx={{backgroundColor:"#aaa",display:"flex"}}>作成者</Box>
       <Box sx={{backgroundColor:"#aaa",display:"flex"}}>タイトル</Box>
       <Box sx={{backgroundColor:"#aaa",display:"flex"}}>カテゴリ</Box>
