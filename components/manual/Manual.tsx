@@ -4,6 +4,7 @@ import TextField from '@mui/material/TextField';
 
 const Manual = () => {
   return
+  <Box>
     <Box sx={{background:"#d3d3d3"}}>
       <Box sx={{textAlign:"center"}}>Group</Box>
 
@@ -18,8 +19,16 @@ const Manual = () => {
         <TextField id="outlined-basic" label="Search" variant="outlined" />
       </Box>
 
-     //rectangle ? が見当たらない
+      <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ display: "flex" }}>Group名</Box>
+        <Box sx={{ display: "flex" }}>Group名</Box>
+        <Box sx={{ display: "flex" }}>Group名</Box>
+        <Box sx={{ display: "flex" }}>Group名</Box>
+        <Box sx={{ display: "flex" }}>Group名</Box>
+      </Box>
+    //card ?
     </Box>
+  </Box>
 };
 
 export default Manual;
