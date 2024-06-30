@@ -15,7 +15,7 @@ const Position = () => {
   };
   return (
     <Box>
-      //"Age"でなく"教員名"にするには？ labelを変更？ //教員名の選択
+      //"Age"でなく"教員名"にするには？ labelを変更？
       <Box sx={{ minWidth: 120, textAlign: "center" }}>
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">Age</InputLabel>
@@ -50,11 +50,11 @@ const Position = () => {
           </Select>
         </FormControl>
       </Box>
-      //チェックボックス ???
+
       <Checkbox />
       <Button
         variant="contained"
-        sx={{ background: "#2f4f4f", textAlign: "center", padding: "5px,50%" }}
+        sx={{ background: "#003B46", textAlign: "center", padding: "5px,50%" }}
       >
         決定
       </Button>
