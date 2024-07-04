@@ -9,7 +9,7 @@ import {
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
-  const isBelongSchool = !!req.auth?.user.schoolId;
+  const isBelongSchool = !!req.auth?.user.schoolId || true;
 
   const isShcoolSlectRoute = nextUrl.pathname.startsWith("/school/select");
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
