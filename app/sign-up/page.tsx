@@ -1,4 +1,4 @@
-import { auth, signIn } from "@/auth";
+import { auth, signIn } from "@/lib/auth";
 import { Box, Button } from "@mui/material";
 
 const SignupPage = async () => {
