@@ -9,6 +9,7 @@ import ToastProvider from "@/components/providers/ToastProvider";
 import TrpcProvider from "@/components/providers/TrpcProvider";
 import CustomeThemeProvider from "@/components/providers/themeProvider";
 
+import { getAuthSession } from "@/lib/auth";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,6 +24,7 @@ const RootLayout = async ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
+  const user = await getAuthSession();
   return (
     <html lang="ja">
       <body className={inter.className}>
@@ -37,7 +39,7 @@ const RootLayout = async ({
                 }}
               >
                 <ToastProvider />
-                <Navigation />
+                <Navigation user={user} />
                 <main>
                   <Container sx={{ flex: 1 }}>{children}</Container>
                 </main>
