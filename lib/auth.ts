@@ -1,8 +1,22 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth from "next-auth";
+import NextAuth, { DefaultSession } from "next-auth";
 import google from "next-auth/providers/google";
 
 import prisma from "@/lib/prisma";
+
+// Session 型の拡張
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      schoolId?: string;
+    } & DefaultSession["user"];
+  }
+
+  interface User {
+    schoolId?: string;
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -10,6 +24,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/sign-in",
   },
   providers: [google],
+  callbacks: {
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.schoolId = user.schoolId;
+      }
+      return token;
+    },
+    session: async ({ session, token }) => {
+      if (token && session.user && token.schoolId) {
+        session.user.schoolId = token.schoolId as string;
+      }
+      return session;
+    },
+  },
   //セッション設定
   session: {
     strategy: "jwt",
@@ -26,6 +54,14 @@ export const getAuthSession = async () => {
 
   const user = prisma.user.findFirst({
     where: { email: session.user.email },
+    include: {
+      school: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   });
 
   return user;

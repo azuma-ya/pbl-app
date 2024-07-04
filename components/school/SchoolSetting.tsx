@@ -2,17 +2,26 @@ import { Box, Button } from "@mui/material";
 
 const SchoolSetting = () => {
   return (
-    <Box>
+    <Box
+      sx={{
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        gap: "8rem",
+      }}
+    >
       <Button
         variant="contained"
-        sx={{ background: "#003B46", textAlign: "center", padding: "5px,50%" }}
+        sx={{ width: "100%", maxWidth: "24rem", paddingY: "1rem" }}
       >
         合言葉の設定
       </Button>
-
       <Button
         variant="contained"
-        sx={{ background: "#07575B", textAlign: "center", padding: "5px,50%" }}
+        sx={{ width: "100%", maxWidth: "24rem", paddingY: "1rem" }}
       >
         役職の割り当て
       </Button>

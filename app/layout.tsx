@@ -34,15 +34,13 @@ const RootLayout = async ({
               <Box
                 sx={{
                   display: "flex",
-                  minHeight: "100vh",
+                  height: "100vh",
                   flexDirection: "column",
                 }}
               >
                 <ToastProvider />
                 <Navigation user={user} />
-                <main>
-                  <Container sx={{ flex: 1 }}>{children}</Container>
-                </main>
+                <Container sx={{ flex: 1 }}>{children}</Container>
               </Box>
             </CustomeThemeProvider>
           </TrpcProvider>
