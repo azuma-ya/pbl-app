@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { School, User } from "@prisma/client";
-import { signOut } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -82,7 +82,11 @@ const Navigation = ({ user }: NavigarionProps) => {
             <Typography variant="h6" component="div">
               PBL APP
             </Typography>
-            <Button color="secondary" variant="contained">
+            <Button
+              color="secondary"
+              variant="contained"
+              onClick={() => signIn("google")}
+            >
               ログイン
             </Button>
           </Box>
@@ -120,7 +124,16 @@ const Navigation = ({ user }: NavigarionProps) => {
               学校設定
             </MuiLink>
           </MenuItem>
-          <MenuItem onClick={handleClose}>新規スレッド</MenuItem>
+          <MenuItem onClick={handleClose}>
+            <MuiLink
+              component={Link}
+              href="/thread/new"
+              underline="none"
+              color="inherit"
+            >
+              新規スレッド
+            </MuiLink>
+          </MenuItem>
           <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
         </Menu>
       </Toolbar>
