@@ -5,6 +5,40 @@ import prisma from "@/lib/prisma";
 import { privateProcedure, publicProcedure, router } from "@/trpc/server/trpc";
 
 export const userRouter = router({
+  getUserByEmail: publicProcedure
+    .input(z.object({ email: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const { email } = input;
+
+        const user = await prisma.user.findFirst({
+          where: {
+            email,
+          },
+          include: { school: { select: { id: true, name: true } } },
+        });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        return user;
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ユーザの取得に失敗しました",
+          });
+        }
+      }
+    }),
   updateAdmin: privateProcedure
     .input(
       z.object({
