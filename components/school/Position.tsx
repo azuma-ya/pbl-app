@@ -1,3 +1,5 @@
+"use client"
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -28,9 +30,9 @@ const Position = () => {
             onChange={handleChange}
           >
             {/* //valueとかは何にしたらよいか？ */}
-            <MenuItem value={10}>〇〇先生</MenuItem>
-            <MenuItem value={10}>〇〇先生</MenuItem>
-            <MenuItem value={10}>〇〇先生</MenuItem>
+            <MenuItem value={0}>〇〇先生</MenuItem>
+            <MenuItem value={1}>〇〇先生</MenuItem>
+            <MenuItem value={2}>〇〇先生</MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -42,12 +44,13 @@ const Position = () => {
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             value={age}
-            label="Age"
+            label="役職"
             onChange={handleChange}
           >
-            <MenuItem value={10}>〇〇先生</MenuItem>
-            <MenuItem value={10}>〇〇先生</MenuItem>
-            <MenuItem value={10}>〇〇先生</MenuItem>
+            <MenuItem value={0}>校長</MenuItem>
+            <MenuItem value={1}>教頭</MenuItem>
+            <MenuItem value={2}>学年主任</MenuItem>
+            <MenuItem value={3}>担任</MenuItem>
           </Select>
         </FormControl>
       </Box>
