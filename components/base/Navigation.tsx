@@ -11,11 +11,16 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import { User } from "@prisma/client";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 
-const Navigation = () => {
+interface NavigarionProps {
+  user: User | null;
+}
+
+const Navigation = ({ user }: NavigarionProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -57,7 +62,7 @@ const Navigation = () => {
           </Button>
         </Box>
         <Button color="inherit" onClick={handleClick}>
-          名前
+          {user?.name || "名前"}
         </Button>
         <Menu
           id="basic-menu"
@@ -78,7 +83,7 @@ const Navigation = () => {
           }}
         >
           <Box sx={{ marginX: 2 }}>
-            <Typography variant="h6">名前</Typography>
+            <Typography variant="h6">{user?.name}</Typography>
             <Typography variant="subtitle2">学校名</Typography>
           </Box>
           <Divider />
