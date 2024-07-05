@@ -2,8 +2,11 @@
 
 import CommentItem from "@/components/comment/CommentItem";
 import CommentNew from "@/components/comment/CommentNew";
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
-import { Comment, Thread, User } from "@prisma/client";
+import ManualAdd from "@/components/manual/ManualAdd";
+import ThreadProfile from "@/components/thread/ThreadProfile";
+import { UserWithRoles } from "@/types/user";
+import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Comment, Manual, Thread, User } from "@prisma/client";
 import { ReactNode } from "react";
 
 const ManualItem = ({ children }: { children: ReactNode }) => {
@@ -16,12 +19,21 @@ const ManualItem = ({ children }: { children: ReactNode }) => {
 
 interface ThreadDetailProps {
   thread: Thread & {
-    comments: (Comment & { user: Pick<User, "id" | "name" | "image"> })[];
+    comments: (Comment & {
+      user: Pick<User, "id" | "name" | "image"> | null;
+    })[];
   };
+  manuals: Manual[];
+  users: UserWithRoles[];
   userId: string;
 }
 
-const ThreadDetail = ({ thread, userId }: ThreadDetailProps) => {
+const ThreadDetail = ({
+  thread,
+  manuals,
+  users,
+  userId,
+}: ThreadDetailProps) => {
   return (
     <Box
       sx={{
@@ -31,9 +43,7 @@ const ThreadDetail = ({ thread, userId }: ThreadDetailProps) => {
         flexDirection: "column",
       }}
     >
-      <Box sx={{ paddingY: "1rem" }}>
-        <Button variant="outlined">{thread.title}</Button>
-      </Box>
+      <ThreadProfile thread={thread} users={users} sx={{ paddingY: "1rem" }} />
       <Box
         sx={{
           width: "100%",
@@ -43,15 +53,23 @@ const ThreadDetail = ({ thread, userId }: ThreadDetailProps) => {
           paddingBottom: 4,
         }}
       >
-        <Box sx={{ backgroundColor: "#ddd", padding: 2 }}>
+        <Box
+          sx={{
+            backgroundColor: "#ddd",
+            padding: 2,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <Typography my={1} variant="body1" component="h2">
             紐づけたマニュアル
           </Typography>
-          <Stack spacing={1}>
-            <ManualItem>ManualItem 1</ManualItem>
-            <ManualItem>ManualItem 2</ManualItem>
-            <ManualItem>ManualItem 3</ManualItem>
+          <Stack spacing={1} sx={{ flex: 1 }}>
+            {manuals.map((manual) => (
+              <ManualItem key={manual.id}>{manual.title}</ManualItem>
+            ))}
           </Stack>
+          <ManualAdd sx={{ marginBottom: "1rem" }} manuals={manuals} />
         </Box>
         <Box
           sx={{

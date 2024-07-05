@@ -2,7 +2,7 @@ import { Box, Checkbox, Paper, Typography } from "@mui/material";
 import { Comment, User } from "@prisma/client";
 
 interface CommentItemProps {
-  comment: Comment & { user: Pick<User, "id" | "name" | "image"> };
+  comment: Comment & { user: Pick<User, "id" | "name" | "image"> | null };
   userId: string;
 }
 
@@ -18,9 +18,11 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
     >
       <Checkbox size="small" defaultChecked />
       <Box sx={{}}>
-        <Typography variant="body1" component="p">
-          {comment.user.name}
-        </Typography>
+        {comment.user && (
+          <Typography variant="body1" component="p">
+            {comment.user.name}
+          </Typography>
+        )}
         <Paper sx={{ textAlign: "center", padding: "1rem 2rem" }}>
           {comment.content}
         </Paper>
