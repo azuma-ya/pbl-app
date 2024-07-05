@@ -1,4 +1,5 @@
 import { auth, signIn } from "@/lib/auth";
+import GoogleIcon from "@mui/icons-material/Google";
 import { Box, Button } from "@mui/material";
 
 const SignupPage = async () => {
@@ -20,8 +21,19 @@ const SignupPage = async () => {
           await signIn("google");
         }}
       >
-        <Button type="submit" variant="contained">
-          Signin with Google
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{ padding: "1rem 2rem", verticalAlign: "center" }}
+        >
+          <GoogleIcon
+            sx={{
+              marginRight: "1rem",
+              width: "1.5rem",
+              height: "1.5rem",
+            }}
+          />
+          Googleアカウント
         </Button>
       </form>
     </Box>

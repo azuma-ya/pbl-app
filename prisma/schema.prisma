@@ -81,6 +81,7 @@ model School {
   users     User[]
   threads   Thread[]
   roles     Role[]
+  manuals   Manual[]
 }
 
 model Thread {
@@ -115,6 +116,7 @@ model ThreadUser {
 model Manual {
   id        String   @id @default(cuid())
   userId    String
+  schoolId  String?
   threadId  String?
   title     String
   content   String
@@ -123,11 +125,12 @@ model Manual {
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   thread Thread? @relation(fields: [threadId], references: [id], onDelete: SetNull)
+  school School? @relation(fields: [schoolId], references: [id], onDelete: SetNull)
 }
 
 model Comment {
   id         String   @id @default(cuid())
-  userId     String
+  userId     String?
   threadId   String
   content    String
   createdAt  DateTime @default(now())
@@ -138,7 +141,7 @@ model Comment {
   replies Comment[] @relation("CommentToParent")
   parent  Comment?  @relation("CommentToParent", fields: [parentId], references: [id], onDelete: SetNull)
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
   thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 }
 

@@ -15,11 +15,22 @@ const ThreadDetailPage = async ({ params }: ThreadDetailPageProps) => {
 
   const thread = await trpc.thread.getThreadById({ threadId });
 
+  const { manuals } = await trpc.manual.getManuals();
+
+  const { members } = await trpc.user.getScooleMembers({});
+
   if (!thread) {
     return <Box sx={{ textAlign: "center" }}>スレッドはありません</Box>;
   }
 
-  return <ThreadDetail thread={thread} userId={user!.id} />;
+  return (
+    <ThreadDetail
+      thread={thread}
+      manuals={manuals}
+      users={members}
+      userId={user!.id}
+    />
+  );
 };
 
 export default ThreadDetailPage;

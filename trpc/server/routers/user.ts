@@ -136,8 +136,8 @@ export const userRouter = router({
   getScooleMembers: privateProcedure
     .input(
       z.object({
-        limit: z.number(),
-        offset: z.number(),
+        limit: z.number().optional(),
+        offset: z.number().optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -156,6 +156,18 @@ export const userRouter = router({
         const members = await prisma.user.findMany({
           where: {
             schoolId: user.schoolId,
+          },
+          include: {
+            roles: {
+              select: {
+                role: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
           skip: offset,
           take: limit,
