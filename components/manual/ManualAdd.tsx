@@ -2,10 +2,11 @@
 
 import { trpc } from "@/trpc/react";
 import AddLinkIcon from "@mui/icons-material/AddLink";
+import type {
+  BoxProps} from "@mui/material";
 import {
   alpha,
   Box,
-  BoxProps,
   Button,
   Checkbox,
   Dialog,
@@ -21,7 +22,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { Manual } from "@prisma/client";
+import type { Manual } from "@prisma/client";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";

@@ -1,4 +1,3 @@
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import {
   Box,
@@ -9,7 +8,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { Manual } from "@prisma/client";
+import type { Manual } from "@prisma/client";
 import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -21,7 +20,7 @@ interface ManualDetailProps {
 
 const ManualDetail = ({ manual, userId }: ManualDetailProps) => {
   return (
-    <Paper elevation={8} sx={{ padding: 4, margin: 4 }}>
+    <Paper elevation={4} sx={{ padding: 4, margin: 4 }}>
       <Stack spacing={4}>
         <Box
           sx={{
@@ -31,7 +30,6 @@ const ManualDetail = ({ manual, userId }: ManualDetailProps) => {
           }}
         >
           <Button LinkComponent={Link} href={`/thread/${manual.threadId}`}>
-            <ArrowBackIcon sx={{ marginRight: 1 }} fontSize="small" />
             このマニュアルのスレッドを見る
           </Button>
           <Button

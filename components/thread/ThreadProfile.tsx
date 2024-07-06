@@ -2,38 +2,49 @@
 
 import { EnhancedUserTable } from "@/components/user/UserAdd";
 import { trpc } from "@/trpc/react";
-import { ThreadWithCommentsManuals } from "@/types/thread";
-import { UserWithRoles } from "@/types/user";
+import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
+import type { UserWithRoles } from "@/types/user";
+import type {
+  ButtonProps} from "@mui/material";
 import {
   Box,
-  BoxProps,
   Button,
   Dialog,
   DialogTitle,
   Typography,
 } from "@mui/material";
-import { ThreadStatus } from "@prisma/client";
+import type { ThreadStatus, ThreadUser } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ReactNode, useState } from "react";
+import type { ReactNode} from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface ThreadProfileDialogProps {
   userId: string;
-  thread: ThreadWithCommentsManuals;
+  thread: ThreadWithCommentsManualsSubsribers;
   users: UserWithRoles[];
   open: boolean;
+  selectedUsers: string[];
+  isUpdate: boolean;
   onClose: () => void;
+  onUpdate: () => void;
+  onChangeSelected: (value: string[]) => void;
 }
 
 const ThreadProfileDialog = ({
   userId,
-  onClose,
+  selectedUsers,
+  isUpdate,
   open,
   thread,
   users,
+  onClose,
+  onUpdate,
+  onChangeSelected,
 }: ThreadProfileDialogProps) => {
   const router = useRouter();
+
   const { mutate: updateStatus, isLoading: isStatusLoading } =
     trpc.thread.updateThreadStatus.useMutation({
       onSuccess: () => {
@@ -71,6 +82,14 @@ const ThreadProfileDialog = ({
 
   const handleClose = () => {
     onClose();
+  };
+
+  const handleUpdate = () => {
+    onUpdate();
+  };
+
+  const handleChangeSelected = (value: string[]) => {
+    onChangeSelected(value);
   };
 
   let statusButton: ReactNode;
@@ -160,19 +179,67 @@ const ThreadProfileDialog = ({
       >
         {thread.description}
       </Typography>
-      <EnhancedUserTable users={users} />
+      <EnhancedUserTable
+        users={users}
+        selectedUsers={selectedUsers}
+        isUpdate={isUpdate}
+        onUpdate={handleUpdate}
+        onChangeSelected={handleChangeSelected}
+      />
     </Dialog>
   );
 };
 
-interface ThreadProfile extends BoxProps {
+interface ThreadProfileButton extends ButtonProps {
   userId: string;
-  thread: ThreadWithCommentsManuals;
+  thread: ThreadWithCommentsManualsSubsribers;
   users: UserWithRoles[];
+  subscribers: ThreadUser[];
 }
 
-const ThreadProfile = ({ userId, thread, users, ...props }: ThreadProfile) => {
+const ThreadProfileButton = ({
+  userId,
+  thread,
+  users,
+  subscribers,
+  ...props
+}: ThreadProfileButton) => {
+  const initialSelectedUsers = subscribers.map(
+    (subscriber) => subscriber.userId,
+  );
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState(initialSelectedUsers);
+  const [isUpdate, setIsUpdate] = useState(false);
+
+  const { mutate: updateSubscribers, isLoading } =
+    trpc.thread.updateThreadSubsucribers.useMutation({
+      onSuccess: () => {
+        toast.success("参加者の更新に成功しました");
+        router.refresh();
+        setIsUpdate(false);
+      },
+      onError: (error) => {
+        toast.error("参加者の更新に失敗しました");
+        console.error(error);
+      },
+    });
+
+  const handleUpdate = () => {
+    updateSubscribers({ threadId: thread.id, subscriberIds: selectedUsers });
+  };
+
+  const handleChangeSelected = (value: string[]) => {
+    setSelectedUsers(value);
+    if (
+      value.length === initialSelectedUsers.length &&
+      value.every((item) => initialSelectedUsers.includes(item))
+    ) {
+      setIsUpdate(false);
+    } else {
+      setIsUpdate(true);
+    }
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -182,19 +249,23 @@ const ThreadProfile = ({ userId, thread, users, ...props }: ThreadProfile) => {
     setOpen(false);
   };
   return (
-    <Box {...props}>
-      <Button variant="outlined" onClick={handleClickOpen}>
+    <>
+      <Button {...props} onClick={handleClickOpen}>
         {thread.title}
       </Button>
       <ThreadProfileDialog
-        userId={userId}
+        isUpdate={isUpdate}
         open={open}
-        onClose={handleClose}
+        selectedUsers={selectedUsers}
         thread={thread}
         users={users}
+        userId={userId}
+        onClose={handleClose}
+        onUpdate={handleUpdate}
+        onChangeSelected={handleChangeSelected}
       />
-    </Box>
+    </>
   );
 };
 
-export default ThreadProfile;
+export default ThreadProfileButton;

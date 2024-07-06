@@ -13,7 +13,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { School, User } from "@prisma/client";
+import type { School, User } from "@prisma/client";
 import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";

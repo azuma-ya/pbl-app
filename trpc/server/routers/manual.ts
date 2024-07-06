@@ -134,7 +134,7 @@ export const manualRouter = router({
               title: manualData.title,
               content: manualData.content,
               userId: user.id,
-              threadId: threadId,
+              threadId,
               schoolId: thread.schoolId,
             },
           });

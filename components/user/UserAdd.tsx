@@ -1,11 +1,12 @@
 "use client";
 
-import { UserWithRoles } from "@/types/user";
-import AddLinkIcon from "@mui/icons-material/AddLink";
+import type { UserWithRoles } from "@/types/user";
+import GroupsIcon from "@mui/icons-material/Groups";
+import type {
+  ButtonProps} from "@mui/material";
 import {
   alpha,
   Box,
-  BoxProps,
   Button,
   Checkbox,
   Dialog,
@@ -94,13 +95,17 @@ const EnhancedUserTableHead = ({
 interface EnhancedUserTableToolbarProps {
   numSelected: number;
   searched: string;
+  isUpdate: boolean;
   changeSearchedHandler: (event: any) => void;
+  onUpdate: () => void;
 }
 
 const EnhancedUserTableToolbar = ({
   numSelected,
   searched,
+  isUpdate,
   changeSearchedHandler,
+  onUpdate,
 }: EnhancedUserTableToolbarProps) => {
   return (
     <Toolbar
@@ -122,32 +127,42 @@ const EnhancedUserTableToolbar = ({
         onChange={(event: any) => changeSearchedHandler(event)}
         variant="filled"
       />
-      {numSelected > 0 && (
-        <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+      <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+        {numSelected > 0 && (
           <Typography color="inherit" variant="subtitle1" component="div">
             {numSelected} 選択中
           </Typography>
-          <Button
-            variant="contained"
-            sx={{ margin: 2, width: "8rem", verticalAlign: "center" }}
-          >
-            <AddLinkIcon sx={{ marginRight: 2 }} />
-            更新
-          </Button>
-        </Box>
-      )}
+        )}
+        <Button
+          variant="contained"
+          sx={{ margin: 2, width: "8rem", verticalAlign: "center" }}
+          onClick={onUpdate}
+          disabled={!isUpdate}
+        >
+          <GroupsIcon sx={{ marginRight: 2 }} />
+          更新
+        </Button>
+      </Box>
     </Toolbar>
   );
 };
 
 interface EnhancedUserTableProps {
   users: UserWithRoles[];
+  selectedUsers: string[];
+  isUpdate: boolean;
+  onUpdate: () => void;
+  onChangeSelected: (value: string[]) => void;
 }
 
-export const EnhancedUserTable = ({ users }: EnhancedUserTableProps) => {
-  const [selected, setSelected] = React.useState<readonly string[]>([]);
+export const EnhancedUserTable = ({
+  users,
+  selectedUsers,
+  isUpdate,
+  onUpdate,
+  onChangeSelected,
+}: EnhancedUserTableProps) => {
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searched, setSearched] = useState("");
   const [rows, setRows] = useState(users);
@@ -155,29 +170,29 @@ export const EnhancedUserTable = ({ users }: EnhancedUserTableProps) => {
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = rows.map((n) => n.id);
-      setSelected(newSelected);
+      onChangeSelected(newSelected);
       return;
     }
-    setSelected([]);
+    onChangeSelected([]);
   };
 
   const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected: readonly string[] = [];
+    const selectedIndex = selectedUsers.indexOf(id);
+    let newSelected: string[] = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
+      newSelected = newSelected.concat(selectedUsers, id);
     } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
+      newSelected = newSelected.concat(selectedUsers.slice(1));
+    } else if (selectedIndex === selectedUsers.length - 1) {
+      newSelected = newSelected.concat(selectedUsers.slice(0, -1));
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selectedUsers.slice(0, selectedIndex),
+        selectedUsers.slice(selectedIndex + 1),
       );
     }
-    setSelected(newSelected);
+    onChangeSelected(newSelected);
   };
 
   const requestSearch = (searchedVal: string) => {
@@ -203,7 +218,11 @@ export const EnhancedUserTable = ({ users }: EnhancedUserTableProps) => {
     setPage(0);
   };
 
-  const isSelected = (id: string) => selected.indexOf(id) !== -1;
+  const handleUpdate = () => {
+    onUpdate();
+  };
+
+  const isSelected = (id: string) => selectedUsers.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -212,18 +231,20 @@ export const EnhancedUserTable = ({ users }: EnhancedUserTableProps) => {
   return (
     <Box sx={{ width: "100%" }}>
       <EnhancedUserTableToolbar
-        numSelected={selected.length}
+        numSelected={selectedUsers.length}
         searched={searched}
         changeSearchedHandler={changeSearchedHandler}
+        onUpdate={handleUpdate}
+        isUpdate={isUpdate}
       />
       <TableContainer>
         <Table
           sx={{ minWidth: 750 }}
           aria-labelledby="tableTitle"
-          size={dense ? "small" : "medium"}
+          size="medium"
         >
           <EnhancedUserTableHead
-            numSelected={selected.length}
+            numSelected={selectedUsers.length}
             onSelectAllClick={handleSelectAllClick}
             rowCount={rows.length}
           />
@@ -269,7 +290,7 @@ export const EnhancedUserTable = ({ users }: EnhancedUserTableProps) => {
             {emptyRows > 0 && (
               <TableRow
                 style={{
-                  height: (dense ? 33 : 53) * emptyRows,
+                  height: 53 * emptyRows,
                 }}
               >
                 <TableCell colSpan={6} />
@@ -294,20 +315,33 @@ export const EnhancedUserTable = ({ users }: EnhancedUserTableProps) => {
 export interface UserAddDialogProps {
   open: boolean;
   users: UserWithRoles[];
-  selectedUsers: UserWithRoles[];
-  onClose: (value: UserWithRoles[]) => void;
+  selectedUsers: string[];
+  isUpdate: boolean;
+  onClose: () => void;
+  onUpdate: () => void;
+  onChangeSelected: (value: string[]) => void;
 }
 
 const UserAddDialog = ({
-  onClose,
+  open,
   users,
   selectedUsers,
-  open,
+  isUpdate,
+  onClose,
+  onUpdate,
+  onChangeSelected,
 }: UserAddDialogProps) => {
   const handleClose = () => {
-    onClose(selectedUsers);
+    onClose();
   };
 
+  const handleUpdate = () => {
+    onUpdate();
+  };
+
+  const handleChangeSelected = (value: string[]) => {
+    onChangeSelected(value);
+  };
   return (
     <Dialog
       onClose={handleClose}
@@ -316,40 +350,65 @@ const UserAddDialog = ({
       maxWidth="lg"
     >
       <DialogTitle>マニュアルを紐づける</DialogTitle>
-      <EnhancedUserTable users={users} />
+      <EnhancedUserTable
+        users={users}
+        selectedUsers={selectedUsers}
+        isUpdate={isUpdate}
+        onUpdate={handleUpdate}
+        onChangeSelected={handleChangeSelected}
+      />
     </Dialog>
   );
 };
 
-interface ManualAdd extends BoxProps {
+interface UserAddButton extends ButtonProps {
   users: UserWithRoles[];
+  subscribers: UserWithRoles[];
 }
 
-const UserAdd = ({ users, ...props }: ManualAdd) => {
+const UserAddButton = ({ users, subscribers, ...props }: UserAddButton) => {
+  const initialSelectedUsers = subscribers.map((subscriber) => subscriber.id);
   const [open, setOpen] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<UserWithRoles[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState(initialSelectedUsers);
+  const [isUpdate, setIsUpdate] = useState(false);
+
+  const handleUpdate = () => {};
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = (value: UserWithRoles[]) => {
+  const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleChangeSelected = (value: string[]) => {
     setSelectedUsers(value);
+    if (
+      value.length === initialSelectedUsers.length &&
+      value.every((item) => initialSelectedUsers.includes(item))
+    ) {
+      setIsUpdate(false);
+    } else {
+      setIsUpdate(true);
+    }
   };
   return (
-    <Box {...props}>
-      <Button variant="contained" onClick={handleClickOpen}>
-        マニュアルを追加する
+    <>
+      <Button {...props} onClick={handleClickOpen}>
+        職員を追加する
       </Button>
       <UserAddDialog
         users={users}
         selectedUsers={selectedUsers}
+        isUpdate={isUpdate}
         open={open}
         onClose={handleClose}
+        onUpdate={handleUpdate}
+        onChangeSelected={handleChangeSelected}
       />
-    </Box>
+    </>
   );
 };
 
-export default UserAdd;
+export default UserAddButton;

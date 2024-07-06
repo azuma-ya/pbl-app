@@ -42,7 +42,7 @@ export const threadRouter = router({
           },
         });
 
-        for (let subscriberId of subscriberIds) {
+        for (const subscriberId of subscriberIds) {
           const user = await prisma.user.findUnique({
             where: {
               id: subscriberId,
@@ -178,6 +178,9 @@ export const threadRouter = router({
                   },
                 },
               },
+              orderBy: {
+                createdAt: "asc",
+              },
             },
             manuals: true,
             linkedManuals: {
@@ -185,6 +188,7 @@ export const threadRouter = router({
                 manual: true,
               },
             },
+            subscribers: true,
           },
         });
 
@@ -290,7 +294,7 @@ export const threadRouter = router({
             },
           });
 
-          for (let subscriberId of subscriberIds) {
+          for (const subscriberId of subscriberIds) {
             const user = await prisma.user.findUnique({
               where: {
                 id: subscriberId,
@@ -314,7 +318,7 @@ export const threadRouter = router({
             await prisma.threadUser.create({
               data: {
                 userId: subscriberId,
-                threadId: threadId,
+                threadId,
               },
             });
           }
@@ -422,7 +426,7 @@ export const threadRouter = router({
             },
           });
 
-          for (let manualId of manualIds) {
+          for (const manualId of manualIds) {
             const manual = await prisma.manual.findUnique({
               where: {
                 id: manualId,
