@@ -214,4 +214,45 @@ export const manualRouter = router({
         }
       }
     }),
+  getManualById: privateProcedure
+    .input(z.object({ manualId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        const { manualId } = input;
+        const user = await ctx.user;
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        if (!user.schoolId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "学校に所属していません",
+          });
+        }
+
+        const manual = await prisma.manual.findUnique({
+          where: {
+            id: manualId,
+          },
+        });
+
+        return manual;
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "マニュアル取得に失敗しました",
+          });
+        }
+      }
+    }),
 });
