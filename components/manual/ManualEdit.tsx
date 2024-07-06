@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DoneIcon from "@mui/icons-material/Done";
 import { Box, Button, Paper, Stack } from "@mui/material";
-import { Manual } from "@prisma/client";
+import type { Manual } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -69,7 +69,7 @@ const ManualEdit = ({ manual }: ManualEditProps) => {
   }, [watch]);
 
   return (
-    <Paper elevation={8} sx={{ padding: 4, margin: 4 }}>
+    <Paper elevation={4} sx={{ padding: 4, margin: 4 }}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Stack spacing={2}>
           <Box

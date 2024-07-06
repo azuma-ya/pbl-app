@@ -1,5 +1,7 @@
-import TextField, { TextFieldProps } from "@mui/material/TextField";
-import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
+import type { TextFieldProps } from "@mui/material/TextField";
+import TextField from "@mui/material/TextField";
+import type { FieldValues, UseControllerProps } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 export type RhfTextFieldProps<T extends FieldValues> = TextFieldProps &
   UseControllerProps<T>;

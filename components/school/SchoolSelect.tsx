@@ -11,8 +11,9 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { School } from "@prisma/client";
-import { ChangeEvent, useState } from "react";
+import type { School } from "@prisma/client";
+import type { ChangeEvent} from "react";
+import { useState } from "react";
 
 interface SchoolSelectProps {
   schools: School[];

@@ -3,15 +3,16 @@
 import RhfTextField from "@/components/ui/RhfTextField";
 import { trpc } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type {
+  ButtonProps} from "@mui/material";
 import {
   Button,
-  ButtonProps,
   Dialog,
   DialogContent,
   DialogTitle,
   Stack,
 } from "@mui/material";
-import { School } from "@prisma/client";
+import type { School } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

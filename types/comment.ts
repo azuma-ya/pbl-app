@@ -1,5 +1,5 @@
-import { User } from "@/types/user";
-import { Comment as PrismaComment } from "@prisma/client";
+import type { User } from "@/types/user";
+import type { Comment as PrismaComment } from "@prisma/client";
 
 export type Comment = PrismaComment;
 

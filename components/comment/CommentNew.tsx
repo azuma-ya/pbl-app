@@ -66,6 +66,7 @@ const CommentNew = ({ threadId, parentId }: CommentNewProps) => {
         name="content"
         label="内容"
         multiline
+        maxRows={10}
         sx={{ flex: 1 }}
       />
       <Box>

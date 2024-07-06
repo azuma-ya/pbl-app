@@ -1,5 +1,5 @@
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 const MuiProvider = ({ children }: { children: ReactNode }) => {
   return (

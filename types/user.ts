@@ -1,4 +1,4 @@
-import { User as PrismaUser, Role } from "@prisma/client";
+import type { User as PrismaUser, Role } from "@prisma/client";
 
 export type User = PrismaUser;
 

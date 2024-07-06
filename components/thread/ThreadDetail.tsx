@@ -3,11 +3,19 @@
 import CommentItem from "@/components/comment/CommentItem";
 import CommentNew from "@/components/comment/CommentNew";
 import ManualAdd from "@/components/manual/ManualAdd";
-import ThreadProfile from "@/components/thread/ThreadProfile";
-import { ThreadWithCommentsManuals } from "@/types/thread";
-import { UserWithRoles } from "@/types/user";
-import { Box, Button, ButtonProps, Stack, Typography } from "@mui/material";
-import { Manual } from "@prisma/client";
+import ThreadProfileButton from "@/components/thread/ThreadProfile";
+import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
+import type { UserWithRoles } from "@/types/user";
+import type {
+  ButtonProps} from "@mui/material";
+import {
+  Box,
+  Button,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
+import type { Manual } from "@prisma/client";
 import Link from "next/link";
 
 interface ManualItemProps extends ButtonProps {
@@ -28,7 +36,7 @@ const ManualItem = ({ manual, ...props }: ManualItemProps) => {
 };
 
 interface ThreadDetailProps {
-  thread: ThreadWithCommentsManuals;
+  thread: ThreadWithCommentsManualsSubsribers;
   manuals: Manual[];
   users: UserWithRoles[];
   userId: string;
@@ -49,12 +57,15 @@ const ThreadDetail = ({
         flexDirection: "column",
       }}
     >
-      <ThreadProfile
-        userId={userId}
-        thread={thread}
-        users={users}
-        sx={{ paddingY: "1rem" }}
-      />
+      <Box sx={{ paddingY: "1rem" }}>
+        <ThreadProfileButton
+          userId={userId}
+          thread={thread}
+          users={users}
+          subscribers={thread.subscribers}
+          variant="outlined"
+        />
+      </Box>
       <Box
         sx={{
           width: "100%",
@@ -64,9 +75,10 @@ const ThreadDetail = ({
           paddingBottom: 4,
         }}
       >
-        <Box
+        <Paper
+          elevation={0}
+          variant="outlined"
           sx={{
-            backgroundColor: "#ddd",
             padding: 2,
             display: "flex",
             flexDirection: "column",
@@ -93,24 +105,25 @@ const ThreadDetail = ({
             linkedManuals={thread.linkedManuals}
             sx={{ marginBottom: "1rem" }}
           />
-        </Box>
-        <Box
+        </Paper>
+        <Paper
+          elevation={0}
+          variant="outlined"
           sx={{
             flex: 1,
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            padding: "2rem 2rem 0.5rem 2rem",
-            backgroundColor: "#ddd",
+            paddingX: "2rem",
           }}
         >
-          <Stack spacing={2}>
+          <Stack spacing={2} sx={{ marginY: 2 }}>
             {thread.comments.map((comment) => (
               <CommentItem key={comment.id} comment={comment} userId={userId} />
             ))}
           </Stack>
           {thread.status === "ACTIVE" && <CommentNew threadId={thread.id} />}
-        </Box>
+        </Paper>
       </Box>
     </Box>
   );

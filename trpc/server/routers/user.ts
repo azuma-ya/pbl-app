@@ -232,7 +232,7 @@ export const userRouter = router({
             id: user.id,
           },
           data: {
-            schoolId: schoolId,
+            schoolId,
           },
         });
       } catch (error) {
