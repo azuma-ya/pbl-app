@@ -29,6 +29,7 @@
     "date-fns": "^3.6.0",
     "next": "14.2.3",
     "next-auth": "^5.0.0-beta.18",
+    "nodemailer": "^6.9.14",
     "openai": "^4.52.3",
     "prisma": "^5.16.1",
     "react": "^18",
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^7.11.0",

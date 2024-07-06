@@ -2,6 +2,7 @@ import { ThreadStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { sendSubscribe } from "@/actions/sendSubscribe";
 import prisma from "@/lib/prisma";
 import { privateProcedure, router } from "@/trpc/server/trpc";
 
@@ -280,19 +281,41 @@ export const threadRouter = router({
 
         const thread = await prisma.thread.findUnique({
           where: { id: threadId },
+          include: {
+            subscribers: {
+              select: {
+                id: true,
+              },
+            },
+          },
         });
 
-        if (thread?.schoolId !== user.schoolId) {
+        if (!thread) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "スレッドが見つかりません",
+          });
+        }
+
+        if (thread.schoolId !== user.schoolId) {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: "あなたの所属学校ではありません",
           });
         }
 
+        const currentSubscriberIds = thread.subscribers.map(
+          (subscriber) => subscriber.id,
+        );
+
+        const createSubscriberIds = subscriberIds.filter(
+          (subscriberId) => !currentSubscriberIds.includes(subscriberId),
+        );
+
         await prisma.$transaction(async (prisma) => {
           await prisma.threadUser.deleteMany({
             where: {
-              threadId,
+              threadId: {},
             },
           });
 
@@ -325,6 +348,10 @@ export const threadRouter = router({
             });
           }
         });
+
+        for (let subscriberId of createSubscriberIds) {
+          await sendSubscribe({ userId: subscriberId, threadId });
+        }
       } catch (error) {
         console.log(error);
 
