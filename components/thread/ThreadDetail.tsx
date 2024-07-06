@@ -4,9 +4,10 @@ import CommentItem from "@/components/comment/CommentItem";
 import CommentNew from "@/components/comment/CommentNew";
 import ManualAdd from "@/components/manual/ManualAdd";
 import ThreadProfile from "@/components/thread/ThreadProfile";
+import { ThreadWithCommentsManuals } from "@/types/thread";
 import { UserWithRoles } from "@/types/user";
 import { Box, Button, ButtonProps, Stack, Typography } from "@mui/material";
-import { Comment, Manual, Thread, User } from "@prisma/client";
+import { Manual } from "@prisma/client";
 import Link from "next/link";
 
 interface ManualItemProps extends ButtonProps {
@@ -27,11 +28,7 @@ const ManualItem = ({ manual, ...props }: ManualItemProps) => {
 };
 
 interface ThreadDetailProps {
-  thread: Thread & {
-    comments: (Comment & {
-      user: Pick<User, "id" | "name" | "image"> | null;
-    })[];
-  } & { manuals: Manual[] } & { linkedManuals: { manual: Manual }[] };
+  thread: ThreadWithCommentsManuals;
   manuals: Manual[];
   users: UserWithRoles[];
   userId: string;
