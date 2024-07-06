@@ -1,5 +1,6 @@
 "use client";
 
+import { trpc } from "@/trpc/react";
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import {
   alpha,
@@ -22,7 +23,9 @@ import {
 } from "@mui/material";
 import { Manual } from "@prisma/client";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 interface HeadCell {
   disablePadding: boolean;
@@ -94,13 +97,17 @@ function EnhancedManualTableHead({
 interface EnhancedManualTableToolbarProps {
   numSelected: number;
   searched: string;
+  isUpdate: boolean;
   changeSearchedHandler: (event: any) => void;
+  onUpdate: () => void;
 }
 
 const EnhancedManualTableToolbar = ({
   numSelected,
   searched,
+  isUpdate,
   changeSearchedHandler,
+  onUpdate,
 }: EnhancedManualTableToolbarProps) => {
   return (
     <Toolbar
@@ -122,32 +129,43 @@ const EnhancedManualTableToolbar = ({
         onChange={(event: any) => changeSearchedHandler(event)}
         variant="filled"
       />
-      {numSelected > 0 && (
-        <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+      <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+        {numSelected > 0 && (
           <Typography color="inherit" variant="subtitle1" component="div">
             {numSelected} 選択中
           </Typography>
-          <Button
-            variant="contained"
-            sx={{ margin: 2, width: "8rem", verticalAlign: "center" }}
-          >
-            <AddLinkIcon sx={{ marginRight: 2 }} />
-            更新
-          </Button>
-        </Box>
-      )}
+        )}
+
+        <Button
+          variant="contained"
+          sx={{ margin: 2, width: "8rem", verticalAlign: "center" }}
+          onClick={onUpdate}
+          disabled={!isUpdate}
+        >
+          <AddLinkIcon sx={{ marginRight: 2 }} />
+          更新
+        </Button>
+      </Box>
     </Toolbar>
   );
 };
 
 interface EnhancedManualTableProps {
   manuals: Manual[];
+  selectedManuals: string[];
+  isUpdate: boolean;
+  onUpdate: () => void;
+  onChangeSelected: (value: string[]) => void;
 }
 
-const EnhancedManualTable = ({ manuals }: EnhancedManualTableProps) => {
-  const [selected, setSelected] = React.useState<readonly string[]>([]);
+const EnhancedManualTable = ({
+  manuals,
+  selectedManuals,
+  isUpdate,
+  onUpdate,
+  onChangeSelected,
+}: EnhancedManualTableProps) => {
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searched, setSearched] = useState<string>("");
   const [rows, setRows] = useState(manuals);
@@ -155,29 +173,29 @@ const EnhancedManualTable = ({ manuals }: EnhancedManualTableProps) => {
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = rows.map((n) => n.id);
-      setSelected(newSelected);
+      onChangeSelected(newSelected);
       return;
     }
-    setSelected([]);
+    onChangeSelected([]);
   };
 
   const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected: readonly string[] = [];
+    const selectedIndex = selectedManuals.indexOf(id);
+    let newSelected: string[] = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
+      newSelected = newSelected.concat(selectedManuals, id);
     } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
+      newSelected = newSelected.concat(selectedManuals.slice(1));
+    } else if (selectedIndex === selectedManuals.length - 1) {
+      newSelected = newSelected.concat(selectedManuals.slice(0, -1));
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selectedManuals.slice(0, selectedIndex),
+        selectedManuals.slice(selectedIndex + 1),
       );
     }
-    setSelected(newSelected);
+    onChangeSelected(newSelected);
   };
 
   const requestSearch = (searchedVal: string) => {
@@ -203,7 +221,11 @@ const EnhancedManualTable = ({ manuals }: EnhancedManualTableProps) => {
     setPage(0);
   };
 
-  const isSelected = (id: string) => selected.indexOf(id) !== -1;
+  const handleUpdate = () => {
+    onUpdate();
+  };
+
+  const isSelected = (id: string) => selectedManuals.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -212,18 +234,20 @@ const EnhancedManualTable = ({ manuals }: EnhancedManualTableProps) => {
   return (
     <Box sx={{ width: "100%" }}>
       <EnhancedManualTableToolbar
-        numSelected={selected.length}
+        numSelected={selectedManuals.length}
         searched={searched}
         changeSearchedHandler={changeSearchedHandler}
+        onUpdate={handleUpdate}
+        isUpdate={isUpdate}
       />
       <TableContainer>
         <Table
           sx={{ minWidth: 750 }}
           aria-labelledby="tableTitle"
-          size={dense ? "small" : "medium"}
+          size="medium"
         >
           <EnhancedManualTableHead
-            numSelected={selected.length}
+            numSelected={selectedManuals.length}
             onSelectAllClick={handleSelectAllClick}
             rowCount={rows.length}
           />
@@ -269,7 +293,7 @@ const EnhancedManualTable = ({ manuals }: EnhancedManualTableProps) => {
             {emptyRows > 0 && (
               <TableRow
                 style={{
-                  height: (dense ? 33 : 53) * emptyRows,
+                  height: 53 * emptyRows,
                 }}
               >
                 <TableCell colSpan={6} />
@@ -294,20 +318,33 @@ const EnhancedManualTable = ({ manuals }: EnhancedManualTableProps) => {
 export interface ManualAddDialogProps {
   open: boolean;
   manuals: Manual[];
-  selectedManuals: Manual[];
-  onClose: (value: Manual[]) => void;
+  selectedManuals: string[];
+  isUpdate: boolean;
+  onClose: () => void;
+  onUpdate: () => void;
+  onChangeSelected: (value: string[]) => void;
 }
 
 const ManualAddDialog = ({
-  onClose,
+  open,
   manuals,
   selectedManuals,
-  open,
+  isUpdate,
+  onClose,
+  onUpdate,
+  onChangeSelected,
 }: ManualAddDialogProps) => {
   const handleClose = () => {
-    onClose(selectedManuals);
+    onClose();
   };
 
+  const handleUpdate = () => {
+    onUpdate();
+  };
+
+  const handleChangeSelected = (value: string[]) => {
+    onChangeSelected(value);
+  };
   return (
     <Dialog
       onClose={handleClose}
@@ -316,26 +353,74 @@ const ManualAddDialog = ({
       maxWidth="lg"
     >
       <DialogTitle>マニュアルを紐づける</DialogTitle>
-      <EnhancedManualTable manuals={manuals} />
+      <EnhancedManualTable
+        manuals={manuals}
+        selectedManuals={selectedManuals}
+        isUpdate={isUpdate}
+        onUpdate={handleUpdate}
+        onChangeSelected={handleChangeSelected}
+      />
     </Dialog>
   );
 };
 
 interface ManualAdd extends BoxProps {
+  threadId: string;
   manuals: Manual[];
+  linkedManuals: { manual: Manual }[];
 }
 
-const ManualAdd = ({ manuals, ...props }: ManualAdd) => {
+const ManualAdd = ({
+  threadId,
+  manuals,
+  linkedManuals,
+  ...props
+}: ManualAdd) => {
+  const initialSelectedManuals = linkedManuals.map(
+    (linkedManual) => linkedManual.manual.id,
+  );
+  const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [selectedManuals, setSelectedManuals] = useState<Manual[]>([]);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [selectedManuals, setSelectedManuals] = useState(
+    initialSelectedManuals,
+  );
+
+  const { mutate: updateLinkedManual, isLoading } =
+    trpc.thread.updateThreadLinkedManual.useMutation({
+      onSuccess: () => {
+        toast.success("マニュアル紐づけに更新に成功しました");
+        router.refresh();
+        setIsUpdate(false);
+      },
+      onError: (error) => {
+        toast.error("マニュアル紐づけ更新に失敗しました");
+        console.error(error);
+      },
+    });
+
+  const handleUpdate = () => {
+    updateLinkedManual({ threadId, manualIds: selectedManuals });
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = (value: Manual[]) => {
+  const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleChangeSelected = (value: string[]) => {
     setSelectedManuals(value);
+    if (
+      value.length === initialSelectedManuals.length &&
+      value.every((item) => initialSelectedManuals.includes(item))
+    ) {
+      setIsUpdate(false);
+    } else {
+      setIsUpdate(true);
+    }
   };
   return (
     <Box {...props}>
@@ -345,8 +430,11 @@ const ManualAdd = ({ manuals, ...props }: ManualAdd) => {
       <ManualAddDialog
         manuals={manuals}
         selectedManuals={selectedManuals}
+        isUpdate={isUpdate}
         open={open}
         onClose={handleClose}
+        onUpdate={handleUpdate}
+        onChangeSelected={handleChangeSelected}
       />
     </Box>
   );

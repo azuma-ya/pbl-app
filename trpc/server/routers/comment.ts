@@ -122,10 +122,16 @@ export const commentRouter = router({
       }
     }),
   updateComment: privateProcedure
-    .input(z.object({ commentId: z.string(), content: z.string() }))
+    .input(
+      z.object({
+        commentId: z.string(),
+        content: z.string().optional(),
+        isSelected: z.boolean().optional(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { commentId, content } = input;
+        const { commentId, content, isSelected } = input;
         const user = await ctx.user;
 
         if (!user) {
@@ -161,6 +167,7 @@ export const commentRouter = router({
           },
           data: {
             content,
+            isSelected,
           },
         });
 

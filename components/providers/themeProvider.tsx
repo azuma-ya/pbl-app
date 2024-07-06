@@ -20,9 +20,7 @@ const theme = createTheme({
   },
 });
 
-const CustomeThemeProvider = ({
-  children,
-}: Readonly<{ children: ReactNode }>) => {
+const CustomeThemeProvider = ({ children }: { children: ReactNode }) => {
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 };
 

@@ -192,7 +192,7 @@ export const userRouter = router({
         }
       }
     }),
-  updateSchool: privateProcedure
+  updateUserSchool: privateProcedure
     .input(z.object({ schoolId: z.string(), password: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -244,6 +244,60 @@ export const userRouter = router({
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "学校の更新に失敗しました",
+          });
+        }
+      }
+    }),
+  craeteUserRole: privateProcedure
+    .input(z.object({ roleId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { roleId } = input;
+
+        const user = await ctx.user;
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        const role = await prisma.role.findUnique({
+          where: {
+            id: roleId,
+          },
+        });
+
+        if (!role) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "役職が見つかりません",
+          });
+        }
+
+        if (role.schoolId !== user.schoolId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "所属学校の役職ではありません",
+          });
+        }
+
+        await prisma.roleUser.create({
+          data: {
+            userId: user.id,
+            roleId,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "役職の紐づけに失敗しました",
           });
         }
       }

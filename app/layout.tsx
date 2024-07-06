@@ -9,6 +9,7 @@ import ToastProvider from "@/components/providers/ToastProvider";
 import TrpcProvider from "@/components/providers/TrpcProvider";
 import CustomeThemeProvider from "@/components/providers/themeProvider";
 
+import MuiProvider from "@/components/providers/MuiProvider";
 import { getAuthSession } from "@/lib/auth";
 import "./globals.css";
 
@@ -30,19 +31,21 @@ const RootLayout = async ({
       <body className={inter.className}>
         <AuthProvider>
           <TrpcProvider>
-            <CustomeThemeProvider>
-              <Box
-                sx={{
-                  display: "flex",
-                  height: "100vh",
-                  flexDirection: "column",
-                }}
-              >
-                <ToastProvider />
-                <Navigation user={user} />
-                <Container sx={{ flex: 1 }}>{children}</Container>
-              </Box>
-            </CustomeThemeProvider>
+            <MuiProvider>
+              <CustomeThemeProvider>
+                <Box
+                  sx={{
+                    display: "flex",
+                    height: "100vh",
+                    flexDirection: "column",
+                  }}
+                >
+                  <ToastProvider />
+                  <Navigation user={user} />
+                  <Container sx={{ flex: 1 }}>{children}</Container>
+                </Box>
+              </CustomeThemeProvider>
+            </MuiProvider>
           </TrpcProvider>
         </AuthProvider>
       </body>

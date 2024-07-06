@@ -150,10 +150,22 @@ export const threadRouter = router({
           });
         }
 
-        const thread = await prisma.thread.findUnique({
+        const thread = await prisma.thread.findFirst({
           where: {
             id: threadId,
             schoolId: user.schoolId,
+            OR: [
+              {
+                userId: user.id,
+              },
+              {
+                subscribers: {
+                  some: {
+                    userId: user.id,
+                  },
+                },
+              },
+            ],
           },
           include: {
             comments: {
@@ -165,6 +177,12 @@ export const threadRouter = router({
                     image: true,
                   },
                 },
+              },
+            },
+            manuals: true,
+            linkedManuals: {
+              select: {
+                manual: true,
               },
             },
           },
@@ -184,7 +202,7 @@ export const threadRouter = router({
         }
       }
     }),
-  updateStatus: privateProcedure
+  updateThreadStatus: privateProcedure
     .input(
       z.object({ threadId: z.string(), status: z.nativeEnum(ThreadStatus) }),
     )
@@ -231,7 +249,7 @@ export const threadRouter = router({
         }
       }
     }),
-  putSubsucribers: privateProcedure
+  updateThreadSubsucribers: privateProcedure
     .input(
       z.object({ threadId: z.string(), subscriberIds: z.string().array() }),
     )
@@ -265,40 +283,42 @@ export const threadRouter = router({
           });
         }
 
-        await prisma.threadUser.deleteMany({
-          where: {
-            threadId,
-          },
-        });
-
-        for (let subscriberId of subscriberIds) {
-          const user = await prisma.user.findUnique({
+        await prisma.$transaction(async (prisma) => {
+          await prisma.threadUser.deleteMany({
             where: {
-              id: subscriberId,
+              threadId,
             },
           });
 
-          if (!user) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "ユーザーが見つかりません",
+          for (let subscriberId of subscriberIds) {
+            const user = await prisma.user.findUnique({
+              where: {
+                id: subscriberId,
+              },
+            });
+
+            if (!user) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "ユーザーが見つかりません",
+              });
+            }
+
+            if (thread?.schoolId !== user.schoolId) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "このユーザーの所属学校ではありません",
+              });
+            }
+
+            await prisma.threadUser.create({
+              data: {
+                userId: subscriberId,
+                threadId: threadId,
+              },
             });
           }
-
-          if (thread?.schoolId !== user.schoolId) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "このユーザーの所属学校ではありません",
-            });
-          }
-
-          await prisma.threadUser.create({
-            data: {
-              userId: subscriberId,
-              threadId: threadId,
-            },
-          });
-        }
+        });
       } catch (error) {
         console.log(error);
 
@@ -308,6 +328,131 @@ export const threadRouter = router({
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "購読者の更新に失敗しました",
+          });
+        }
+      }
+    }),
+  createThreadLinkedManual: privateProcedure
+    .input(z.object({ threadId: z.string(), manualId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { threadId, manualId } = input;
+        const user = await ctx.user;
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        if (!user.schoolId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "学校に所属していません",
+          });
+        }
+
+        const thread = await prisma.thread.findUnique({
+          where: { id: threadId },
+        });
+
+        if (thread?.schoolId !== user.schoolId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "あなたの所属学校ではありません",
+          });
+        }
+
+        await prisma.threadManual.create({
+          data: {
+            threadId,
+            manualId,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "購読者の更新に失敗しました",
+          });
+        }
+      }
+    }),
+  updateThreadLinkedManual: privateProcedure
+    .input(z.object({ threadId: z.string(), manualIds: z.string().array() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { threadId, manualIds } = input;
+        const user = await ctx.user;
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        if (!user.schoolId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "学校に所属していません",
+          });
+        }
+
+        const thread = await prisma.thread.findUnique({
+          where: { id: threadId },
+        });
+
+        if (thread?.schoolId !== user.schoolId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "あなたの所属学校ではありません",
+          });
+        }
+
+        await prisma.$transaction(async (prisma) => {
+          await prisma.threadManual.deleteMany({
+            where: {
+              threadId,
+            },
+          });
+
+          for (let manualId of manualIds) {
+            const manual = await prisma.manual.findUnique({
+              where: {
+                id: manualId,
+              },
+            });
+
+            if (!manual) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "マニュアルが見つかりません",
+              });
+            }
+
+            await prisma.threadManual.create({
+              data: {
+                threadId,
+                manualId,
+              },
+            });
+          }
+        });
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "マニュアルの紐づけの更新に失敗しました",
           });
         }
       }

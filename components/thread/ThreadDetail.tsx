@@ -5,15 +5,24 @@ import CommentNew from "@/components/comment/CommentNew";
 import ManualAdd from "@/components/manual/ManualAdd";
 import ThreadProfile from "@/components/thread/ThreadProfile";
 import { UserWithRoles } from "@/types/user";
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, ButtonProps, Stack, Typography } from "@mui/material";
 import { Comment, Manual, Thread, User } from "@prisma/client";
-import { ReactNode } from "react";
+import Link from "next/link";
 
-const ManualItem = ({ children }: { children: ReactNode }) => {
+interface ManualItemProps extends ButtonProps {
+  manual: Manual;
+}
+
+const ManualItem = ({ manual, ...props }: ManualItemProps) => {
   return (
-    <Paper sx={{ textAlign: "center", padding: "0.5rem 1rem" }}>
-      {children}
-    </Paper>
+    <Button
+      LinkComponent={Link}
+      href={`/manual/${manual.id}`}
+      variant="outlined"
+      {...props}
+    >
+      {manual.title}
+    </Button>
   );
 };
 
@@ -22,7 +31,7 @@ interface ThreadDetailProps {
     comments: (Comment & {
       user: Pick<User, "id" | "name" | "image"> | null;
     })[];
-  };
+  } & { manuals: Manual[] } & { linkedManuals: { manual: Manual }[] };
   manuals: Manual[];
   users: UserWithRoles[];
   userId: string;
@@ -43,7 +52,12 @@ const ThreadDetail = ({
         flexDirection: "column",
       }}
     >
-      <ThreadProfile thread={thread} users={users} sx={{ paddingY: "1rem" }} />
+      <ThreadProfile
+        userId={userId}
+        thread={thread}
+        users={users}
+        sx={{ paddingY: "1rem" }}
+      />
       <Box
         sx={{
           width: "100%",
@@ -59,17 +73,29 @@ const ThreadDetail = ({
             padding: 2,
             display: "flex",
             flexDirection: "column",
+            width: "11rem",
           }}
         >
           <Typography my={1} variant="body1" component="h2">
             紐づけたマニュアル
           </Typography>
           <Stack spacing={1} sx={{ flex: 1 }}>
-            {manuals.map((manual) => (
-              <ManualItem key={manual.id}>{manual.title}</ManualItem>
+            {thread.linkedManuals.map((linkedManual) => (
+              <ManualItem
+                key={linkedManual.manual.id}
+                manual={linkedManual.manual}
+                sx={{ textAlign: "center", padding: "0.5rem 1rem" }}
+              >
+                {linkedManual.manual.title}
+              </ManualItem>
             ))}
           </Stack>
-          <ManualAdd sx={{ marginBottom: "1rem" }} manuals={manuals} />
+          <ManualAdd
+            threadId={thread.id}
+            manuals={manuals}
+            linkedManuals={thread.linkedManuals}
+            sx={{ marginBottom: "1rem" }}
+          />
         </Box>
         <Box
           sx={{
@@ -83,10 +109,10 @@ const ThreadDetail = ({
         >
           <Stack spacing={2}>
             {thread.comments.map((comment) => (
-              <CommentItem comment={comment} userId={userId} />
+              <CommentItem key={comment.id} comment={comment} userId={userId} />
             ))}
           </Stack>
-          <CommentNew threadId={thread.id} />
+          {thread.status === "ACTIVE" && <CommentNew threadId={thread.id} />}
         </Box>
       </Box>
     </Box>
