@@ -1,5 +1,6 @@
 "use client";
 
+import SchoolAddButton from "@/components/school/SchoolAdd";
 import SchoolParticipateButton from "@/components/school/SchoolParicipate";
 import {
   Box,
@@ -72,7 +73,9 @@ const SchoolSelect = ({ schools, userId }: SchoolSelectProps) => {
           </ListItem>
         ))}
       </List>
-      <Box sx={{ textAlign: "end" }}>学校を追加する</Box>
+      <Box sx={{ textAlign: "end" }}>
+        <SchoolAddButton userId={userId}>学校を追加する</SchoolAddButton>
+      </Box>
     </Stack>
   );
 };
