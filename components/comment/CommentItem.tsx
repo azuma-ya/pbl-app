@@ -1,5 +1,11 @@
+"use client";
+
+import { trpc } from "@/trpc/react";
 import { Box, Checkbox, Paper, Typography } from "@mui/material";
 import { Comment, User } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface CommentItemProps {
   comment: Comment & { user: Pick<User, "id" | "name" | "image"> | null };
@@ -7,6 +13,27 @@ interface CommentItemProps {
 }
 
 const CommentItem = ({ comment, userId }: CommentItemProps) => {
+  const router = useRouter();
+  const [isSelected, setIsSlected] = useState(comment.isSelected);
+
+  const { mutate: updateComment, isLoading } =
+    trpc.comment.updateComment.useMutation({
+      onSuccess: (comment) => {
+        toast.success("コメントを更新しました");
+        router.refresh();
+      },
+      onError: (error) => {
+        toast.error("マニュアルの作成に失敗しました");
+        console.error(error);
+        setIsSlected((prev) => !prev);
+      },
+    });
+
+  const handleUpdateIsSelected = () => {
+    setIsSlected((prev) => !prev);
+    updateComment({ commentId: comment.id, isSelected: !comment.isSelected });
+  };
+
   return (
     <Box
       sx={{
@@ -16,7 +43,11 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
         justifyContent: comment.userId === userId ? "space-between" : "left",
       }}
     >
-      <Checkbox size="small" defaultChecked />
+      <Checkbox
+        size="small"
+        checked={isSelected}
+        onClick={handleUpdateIsSelected}
+      />
       <Box sx={{}}>
         {comment.user && (
           <Typography variant="body1" component="p">
