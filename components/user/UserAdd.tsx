@@ -149,7 +149,7 @@ export const EnhancedUserTable = ({ users }: EnhancedUserTableProps) => {
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [searched, setSearched] = useState<string>("");
+  const [searched, setSearched] = useState("");
   const [rows, setRows] = useState(users);
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -2,6 +2,7 @@
 
 import { EnhancedUserTable } from "@/components/user/UserAdd";
 import { trpc } from "@/trpc/react";
+import { ThreadWithCommentsManuals } from "@/types/thread";
 import { UserWithRoles } from "@/types/user";
 import {
   Box,
@@ -11,7 +12,7 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
-import { Comment, Manual, Thread, ThreadStatus, User } from "@prisma/client";
+import { ThreadStatus } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ReactNode, useState } from "react";
@@ -19,11 +20,7 @@ import toast from "react-hot-toast";
 
 interface ThreadProfileDialogProps {
   userId: string;
-  thread: Thread & {
-    comments: (Comment & {
-      user: Pick<User, "id" | "name" | "image"> | null;
-    })[];
-  } & { manuals: Manual[] } & { linkedManuals: { manual: Manual }[] };
+  thread: ThreadWithCommentsManuals;
   users: UserWithRoles[];
   open: boolean;
   onClose: () => void;
@@ -170,11 +167,7 @@ const ThreadProfileDialog = ({
 
 interface ThreadProfile extends BoxProps {
   userId: string;
-  thread: Thread & {
-    comments: (Comment & {
-      user: Pick<User, "id" | "name" | "image"> | null;
-    })[];
-  } & { manuals: Manual[] } & { linkedManuals: { manual: Manual }[] };
+  thread: ThreadWithCommentsManuals;
   users: UserWithRoles[];
 }
 

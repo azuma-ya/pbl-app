@@ -32,7 +32,7 @@ const ManualDetail = ({ manual, userId }: ManualDetailProps) => {
         >
           <Button LinkComponent={Link} href={`/thread/${manual.threadId}`}>
             <ArrowBackIcon sx={{ marginRight: 1 }} fontSize="small" />
-            スレッドに戻る
+            このマニュアルのスレッドを見る
           </Button>
           <Button
             LinkComponent={Link}

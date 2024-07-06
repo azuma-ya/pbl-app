@@ -25,9 +25,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   providers: [google],
   callbacks: {
-    jwt: async ({ token, user }) => {
+    jwt: async ({ token, user, trigger, session }) => {
       if (user) {
         token.schoolId = user.schoolId;
+      }
+      if (trigger === "update" && session?.user.schoolId) {
+        token.schoolId = session.user.schoolId;
       }
       return token;
     },

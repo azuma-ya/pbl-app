@@ -1,14 +1,14 @@
 "use client";
 
 import { trpc } from "@/trpc/react";
+import { CommentWithUser } from "@/types/comment";
 import { Box, Checkbox, Paper, Typography } from "@mui/material";
-import { Comment, User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface CommentItemProps {
-  comment: Comment & { user: Pick<User, "id" | "name" | "image"> | null };
+  comment: CommentWithUser;
   userId: string;
 }
 
@@ -54,7 +54,13 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
             {comment.user.name}
           </Typography>
         )}
-        <Paper sx={{ textAlign: "center", padding: "1rem 2rem" }}>
+        <Paper
+          sx={{
+            textAlign: "start",
+            padding: "1rem 2rem",
+            whiteSpace: "pre-wrap",
+          }}
+        >
           {comment.content}
         </Paper>
       </Box>

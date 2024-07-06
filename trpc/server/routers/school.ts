@@ -43,8 +43,8 @@ export const schoolRouter = router({
   getScools: publicProcedure
     .input(
       z.object({
-        limit: z.number(),
-        offset: z.number(),
+        limit: z.number().optional(),
+        offset: z.number().optional(),
       }),
     )
     .query(async ({ input }) => {
