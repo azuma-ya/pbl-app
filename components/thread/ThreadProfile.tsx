@@ -11,13 +11,19 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
-import { Thread, ThreadStatus } from "@prisma/client";
+import { Comment, Manual, Thread, ThreadStatus, User } from "@prisma/client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ReactNode, useState } from "react";
 import toast from "react-hot-toast";
+
 interface ThreadProfileDialogProps {
   userId: string;
-  thread: Thread;
+  thread: Thread & {
+    comments: (Comment & {
+      user: Pick<User, "id" | "name" | "image"> | null;
+    })[];
+  } & { manuals: Manual[] } & { linkedManuals: { manual: Manual }[] };
   users: UserWithRoles[];
   open: boolean;
   onClose: () => void;
@@ -96,9 +102,25 @@ const ThreadProfileDialog = ({
       break;
     case "CLOSED":
       statusButton = (
-        <Button variant="contained" disabled>
-          解決済み
-        </Button>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+          }}
+        >
+          <Button variant="contained" disabled>
+            解決済み
+          </Button>
+          <Button
+            variant="contained"
+            LinkComponent={Link}
+            href={`/manual/${thread.manuals[0].id}`}
+          >
+            マニュアルを見る
+          </Button>
+        </Box>
       );
       break;
     case "INACTIVE":
@@ -148,7 +170,11 @@ const ThreadProfileDialog = ({
 
 interface ThreadProfile extends BoxProps {
   userId: string;
-  thread: Thread;
+  thread: Thread & {
+    comments: (Comment & {
+      user: Pick<User, "id" | "name" | "image"> | null;
+    })[];
+  } & { manuals: Manual[] } & { linkedManuals: { manual: Manual }[] };
   users: UserWithRoles[];
 }
 

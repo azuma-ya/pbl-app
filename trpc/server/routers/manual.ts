@@ -103,7 +103,7 @@ export const manualRouter = router({
             },
             {
               role: "user",
-              content: `以下の文章は問題発生から解決までの会話履歴です。titleとcontentを持つJSONを下さい。またconetntはmarkdownで書き、\n${manualFormat}\n以上のフォーマットに従ってください。`,
+              content: `以下の文章は問題発生から解決までの会話履歴です。会話履歴なので不要な文章もあるかもしれません。要点だけ考慮し、また適切なプロセスを考えてマニュアルを作成してください。出力にはtitleとcontentを持つJSONを下さい。またconetntはmarkdownで書き、\n${manualFormat}\n以上のフォーマットに従ってください。`,
             },
             {
               role: "user",

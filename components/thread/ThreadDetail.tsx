@@ -31,7 +31,7 @@ interface ThreadDetailProps {
     comments: (Comment & {
       user: Pick<User, "id" | "name" | "image"> | null;
     })[];
-  } & { linkedManuals: { manual: Manual }[] };
+  } & { manuals: Manual[] } & { linkedManuals: { manual: Manual }[] };
   manuals: Manual[];
   users: UserWithRoles[];
   userId: string;

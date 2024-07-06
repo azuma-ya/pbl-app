@@ -179,6 +179,7 @@ export const threadRouter = router({
                 },
               },
             },
+            manuals: true,
             linkedManuals: {
               select: {
                 manual: true,

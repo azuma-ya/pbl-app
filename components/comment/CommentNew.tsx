@@ -48,7 +48,6 @@ const CommentNew = ({ threadId, parentId }: CommentNewProps) => {
     });
 
   const onSubmit: SubmitHandler<InputType> = (data) => {
-    console.log(data.content);
     createComment({
       threadId,
       content: data.content,
@@ -66,6 +65,7 @@ const CommentNew = ({ threadId, parentId }: CommentNewProps) => {
         control={form.control}
         name="content"
         label="内容"
+        multiline
         sx={{ flex: 1 }}
       />
       <Box>
