@@ -31,7 +31,7 @@ interface ThreadDetailProps {
     comments: (Comment & {
       user: Pick<User, "id" | "name" | "image"> | null;
     })[];
-  };
+  } & { linkedManuals: { manual: Manual }[] };
   manuals: Manual[];
   users: UserWithRoles[];
   userId: string;
@@ -43,7 +43,6 @@ const ThreadDetail = ({
   users,
   userId,
 }: ThreadDetailProps) => {
-  console.log(manuals);
   return (
     <Box
       sx={{
@@ -81,17 +80,22 @@ const ThreadDetail = ({
             紐づけたマニュアル
           </Typography>
           <Stack spacing={1} sx={{ flex: 1 }}>
-            {manuals.map((manual) => (
+            {thread.linkedManuals.map((linkedManual) => (
               <ManualItem
-                key={manual.id}
-                manual={manual}
+                key={linkedManual.manual.id}
+                manual={linkedManual.manual}
                 sx={{ textAlign: "center", padding: "0.5rem 1rem" }}
               >
-                {manual.title}
+                {linkedManual.manual.title}
               </ManualItem>
             ))}
           </Stack>
-          <ManualAdd sx={{ marginBottom: "1rem" }} manuals={manuals} />
+          <ManualAdd
+            threadId={thread.id}
+            manuals={manuals}
+            linkedManuals={thread.linkedManuals}
+            sx={{ marginBottom: "1rem" }}
+          />
         </Box>
         <Box
           sx={{
@@ -105,7 +109,7 @@ const ThreadDetail = ({
         >
           <Stack spacing={2}>
             {thread.comments.map((comment) => (
-              <CommentItem comment={comment} userId={userId} />
+              <CommentItem key={comment.id} comment={comment} userId={userId} />
             ))}
           </Stack>
           {thread.status === "ACTIVE" && <CommentNew threadId={thread.id} />}
