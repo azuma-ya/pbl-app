@@ -1,22 +1,24 @@
 "use client";
 
+import ManualAddDialogButton from "@/components/manual/ManualAdd";
 import { EnhancedUserTable } from "@/components/user/UserAdd";
 import { trpc } from "@/trpc/react";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
-import type {
-  ButtonProps} from "@mui/material";
+import LinkIcon from "@mui/icons-material/Link";
+import type { ButtonProps } from "@mui/material";
 import {
   Box,
   Button,
   Dialog,
   DialogTitle,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
-import type { ThreadStatus, ThreadUser } from "@prisma/client";
+import type { Manual, ThreadStatus, ThreadUser } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ReactNode} from "react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -24,6 +26,7 @@ interface ThreadProfileDialogProps {
   userId: string;
   thread: ThreadWithCommentsManualsSubsribers;
   users: UserWithRoles[];
+  manuals: Manual[];
   open: boolean;
   selectedUsers: string[];
   isUpdate: boolean;
@@ -38,12 +41,14 @@ const ThreadProfileDialog = ({
   isUpdate,
   open,
   thread,
+  manuals,
   users,
   onClose,
   onUpdate,
   onChangeSelected,
 }: ThreadProfileDialogProps) => {
   const router = useRouter();
+  const sm = useMediaQuery("(min-width:600px)");
 
   const { mutate: updateStatus, isLoading: isStatusLoading } =
     trpc.thread.updateThreadStatus.useMutation({
@@ -101,7 +106,7 @@ const ThreadProfileDialog = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "end",
             gap: 2,
           }}
         >
@@ -122,7 +127,7 @@ const ThreadProfileDialog = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "end",
             gap: 2,
           }}
         >
@@ -170,8 +175,9 @@ const ThreadProfileDialog = ({
         }}
       >
         {thread.title}
-        {thread.userId === userId && statusButton}
+        {thread.userId === userId && sm && statusButton}
       </DialogTitle>
+      {!sm && <Box sx={{ margin: "0rem 1rem 1rem 1rem" }}>{statusButton}</Box>}
       <Typography
         variant="subtitle2"
         component="p"
@@ -179,6 +185,19 @@ const ThreadProfileDialog = ({
       >
         {thread.description}
       </Typography>
+      {!sm && (
+        <Box sx={{ marginX: 1 }}>
+          <ManualAddDialogButton
+            threadId={thread.id}
+            manuals={manuals}
+            linkedManuals={thread.linkedManuals}
+            variant="text"
+          >
+            <LinkIcon sx={{ marginRight: 1 }} />
+            紐づけられたマニュアルを見る
+          </ManualAddDialogButton>
+        </Box>
+      )}
       <EnhancedUserTable
         users={users}
         selectedUsers={selectedUsers}
@@ -194,6 +213,7 @@ interface ThreadProfileButton extends ButtonProps {
   userId: string;
   thread: ThreadWithCommentsManualsSubsribers;
   users: UserWithRoles[];
+  manuals: Manual[];
   subscribers: ThreadUser[];
 }
 
@@ -201,6 +221,7 @@ const ThreadProfileButton = ({
   userId,
   thread,
   users,
+  manuals,
   subscribers,
   ...props
 }: ThreadProfileButton) => {
@@ -259,6 +280,7 @@ const ThreadProfileButton = ({
         selectedUsers={selectedUsers}
         thread={thread}
         users={users}
+        manuals={manuals}
         userId={userId}
         onClose={handleClose}
         onUpdate={handleUpdate}

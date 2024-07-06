@@ -2,21 +2,22 @@
 
 import CommentItem from "@/components/comment/CommentItem";
 import CommentNew from "@/components/comment/CommentNew";
-import ManualAdd from "@/components/manual/ManualAdd";
+import ManualAddDialogButton from "@/components/manual/ManualAdd";
 import ThreadProfileButton from "@/components/thread/ThreadProfile";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
-import type {
-  ButtonProps} from "@mui/material";
+import type { ButtonProps } from "@mui/material";
 import {
   Box,
   Button,
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import type { Manual } from "@prisma/client";
 import Link from "next/link";
+import { useRef, useState } from "react";
 
 interface ManualItemProps extends ButtonProps {
   manual: Manual;
@@ -48,8 +49,16 @@ const ThreadDetail = ({
   users,
   userId,
 }: ThreadDetailProps) => {
+  const sm = useMediaQuery("(min-width:600px)");
+  const [parentId, setParentId] = useState<string>();
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  const handleChangeParentId = (id?: string) => {
+    setParentId(id);
+  };
   return (
     <Box
+      ref={boxRef}
       sx={{
         width: "100%",
         height: "100%",
@@ -62,6 +71,7 @@ const ThreadDetail = ({
           userId={userId}
           thread={thread}
           users={users}
+          manuals={manuals}
           subscribers={thread.subscribers}
           variant="outlined"
         />
@@ -80,7 +90,7 @@ const ThreadDetail = ({
           variant="outlined"
           sx={{
             padding: 2,
-            display: "flex",
+            display: { xs: "none", sm: "flex" },
             flexDirection: "column",
             width: "11rem",
           }}
@@ -99,30 +109,48 @@ const ThreadDetail = ({
               </ManualItem>
             ))}
           </Stack>
-          <ManualAdd
+          <ManualAddDialogButton
             threadId={thread.id}
             manuals={manuals}
             linkedManuals={thread.linkedManuals}
             sx={{ marginBottom: "1rem" }}
-          />
+            variant="contained"
+          >
+            マニュアルを追加する
+          </ManualAddDialogButton>
         </Paper>
         <Paper
           elevation={0}
-          variant="outlined"
+          variant={sm ? "outlined" : "elevation"}
           sx={{
             flex: 1,
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            paddingX: "2rem",
+            paddingX: { xs: 0, sm: "2rem" },
           }}
         >
           <Stack spacing={2} sx={{ marginY: 2 }}>
             {thread.comments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} userId={userId} />
+              <CommentItem
+                key={comment.id}
+                comment={comment}
+                userId={userId}
+                parentId={parentId}
+                threadStatus={thread.status}
+                onChangeParentId={handleChangeParentId}
+              />
             ))}
           </Stack>
-          {thread.status === "ACTIVE" && <CommentNew threadId={thread.id} />}
+          {thread.status === "ACTIVE" && (
+            <CommentNew
+              threadId={thread.id}
+              parentComment={thread.comments.find(
+                (comment) => comment.id === parentId,
+              )}
+              onChangeParentId={handleChangeParentId}
+            />
+          )}
         </Paper>
       </Box>
     </Box>

@@ -2,8 +2,7 @@
 
 import type { UserWithRoles } from "@/types/user";
 import GroupsIcon from "@mui/icons-material/Groups";
-import type {
-  ButtonProps} from "@mui/material";
+import type { ButtonProps } from "@mui/material";
 import {
   alpha,
   Box,
@@ -21,6 +20,7 @@ import {
   TextField,
   Toolbar,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { format } from "date-fns";
 import React, { useState } from "react";
@@ -107,6 +107,8 @@ const EnhancedUserTableToolbar = ({
   changeSearchedHandler,
   onUpdate,
 }: EnhancedUserTableToolbarProps) => {
+  const sm = useMediaQuery("(min-width:600px)");
+
   return (
     <Toolbar
       sx={{
@@ -128,7 +130,7 @@ const EnhancedUserTableToolbar = ({
         variant="filled"
       />
       <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
-        {numSelected > 0 && (
+        {numSelected > 0 && sm && (
           <Typography color="inherit" variant="subtitle1" component="div">
             {numSelected} 選択中
           </Typography>
@@ -349,7 +351,7 @@ const UserAddDialog = ({
       PaperProps={{ sx: { minHeight: "50%" } }}
       maxWidth="lg"
     >
-      <DialogTitle>マニュアルを紐づける</DialogTitle>
+      <DialogTitle>職員を追加する</DialogTitle>
       <EnhancedUserTable
         users={users}
         selectedUsers={selectedUsers}
