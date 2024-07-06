@@ -2,10 +2,8 @@
 
 import { trpc } from "@/trpc/react";
 import AddLinkIcon from "@mui/icons-material/AddLink";
-import type {
-  BoxProps} from "@mui/material";
+import type { ButtonProps } from "@mui/material";
 import {
-  alpha,
   Box,
   Button,
   Checkbox,
@@ -21,9 +19,12 @@ import {
   TextField,
   Toolbar,
   Typography,
+  alpha,
+  useMediaQuery,
 } from "@mui/material";
 import type { Manual } from "@prisma/client";
 import { format } from "date-fns";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
@@ -110,6 +111,7 @@ const EnhancedManualTableToolbar = ({
   changeSearchedHandler,
   onUpdate,
 }: EnhancedManualTableToolbarProps) => {
+  const sm = useMediaQuery("(min-width:600px)");
   return (
     <Toolbar
       sx={{
@@ -131,7 +133,7 @@ const EnhancedManualTableToolbar = ({
         variant="filled"
       />
       <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
-        {numSelected > 0 && (
+        {numSelected > 0 && sm && (
           <Typography color="inherit" variant="subtitle1" component="div">
             {numSelected} 選択中
           </Typography>
@@ -166,6 +168,7 @@ const EnhancedManualTable = ({
   onUpdate,
   onChangeSelected,
 }: EnhancedManualTableProps) => {
+  const sm = useMediaQuery("(min-width:600px)");
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searched, setSearched] = useState<string>("");
@@ -282,7 +285,13 @@ const EnhancedManualTable = ({
                     scope="row"
                     padding="none"
                   >
-                    {row.title}
+                    {sm ? (
+                      row.title
+                    ) : (
+                      <Button LinkComponent={Link} href={`/manual/${row.id}`}>
+                        {row.title}
+                      </Button>
+                    )}
                   </TableCell>
                   <TableCell align="right">{row.userId}</TableCell>
                   <TableCell align="right">
@@ -365,18 +374,19 @@ const ManualAddDialog = ({
   );
 };
 
-interface ManualAdd extends BoxProps {
+interface ManualAddDialogButton extends ButtonProps {
   threadId: string;
   manuals: Manual[];
   linkedManuals: { manual: Manual }[];
 }
 
-const ManualAdd = ({
+const ManualAddDialogButton = ({
   threadId,
   manuals,
   linkedManuals,
+  children,
   ...props
-}: ManualAdd) => {
+}: ManualAddDialogButton) => {
   const initialSelectedManuals = linkedManuals.map(
     (linkedManual) => linkedManual.manual.id,
   );
@@ -424,9 +434,9 @@ const ManualAdd = ({
     }
   };
   return (
-    <Box {...props}>
-      <Button variant="contained" onClick={handleClickOpen}>
-        マニュアルを追加する
+    <>
+      <Button {...props} onClick={handleClickOpen}>
+        {children}
       </Button>
       <ManualAddDialog
         manuals={manuals}
@@ -437,8 +447,8 @@ const ManualAdd = ({
         onUpdate={handleUpdate}
         onChangeSelected={handleChangeSelected}
       />
-    </Box>
+    </>
   );
 };
 
-export default ManualAdd;
+export default ManualAddDialogButton;

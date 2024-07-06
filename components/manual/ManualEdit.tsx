@@ -5,7 +5,7 @@ import { trpc } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DoneIcon from "@mui/icons-material/Done";
-import { Box, Button, Paper, Stack } from "@mui/material";
+import { Box, Button, Paper, Stack, useMediaQuery } from "@mui/material";
 import type { Manual } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,6 +32,7 @@ interface ManualEditProps {
 
 const ManualEdit = ({ manual }: ManualEditProps) => {
   const router = useRouter();
+  const sm = useMediaQuery("(min-width:600px)");
   const [isUpdate, setIsUpdate] = useState(false);
 
   const { watch, ...form } = useForm<InputType>({
@@ -69,7 +70,10 @@ const ManualEdit = ({ manual }: ManualEditProps) => {
   }, [watch]);
 
   return (
-    <Paper elevation={4} sx={{ padding: 4, margin: 4 }}>
+    <Paper
+      elevation={sm ? 4 : 0}
+      sx={{ padding: { xs: 0, sm: 4 }, margin: { xs: "2rem 0", sm: 4 } }}
+    >
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Stack spacing={2}>
           <Box

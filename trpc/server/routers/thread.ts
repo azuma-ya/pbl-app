@@ -165,6 +165,7 @@ export const threadRouter = router({
                   },
                 },
               },
+              { status: "CLOSED" },
             ],
           },
           include: {
@@ -177,6 +178,7 @@ export const threadRouter = router({
                     image: true,
                   },
                 },
+                parent: true,
               },
               orderBy: {
                 createdAt: "asc",

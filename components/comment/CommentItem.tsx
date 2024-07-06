@@ -2,17 +2,28 @@
 
 import { trpc } from "@/trpc/react";
 import type { CommentWithUser } from "@/types/comment";
-import { Box, Checkbox, Paper, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Typography } from "@mui/material";
+import { ThreadStatus } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
 import toast from "react-hot-toast";
 
 interface CommentItemProps {
   comment: CommentWithUser;
   userId: string;
+  parentId?: string;
+  threadStatus: ThreadStatus;
+  onChangeParentId: (id?: string) => void;
 }
 
-const CommentItem = ({ comment, userId }: CommentItemProps) => {
+const CommentItem = ({
+  comment,
+  userId,
+  parentId,
+  threadStatus,
+  onChangeParentId,
+}: CommentItemProps) => {
   const router = useRouter();
   const [isSelected, setIsSlected] = useState(comment.isSelected);
 
@@ -33,6 +44,11 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
     updateComment({ commentId: comment.id, isSelected: !comment.isSelected });
   };
 
+  const handleChangeParentId = () => {
+    if (threadStatus !== "ACTIVE") return;
+    onChangeParentId(comment.id === parentId ? undefined : comment.id);
+  };
+
   return (
     <Box
       sx={{
@@ -46,23 +62,52 @@ const CommentItem = ({ comment, userId }: CommentItemProps) => {
         size="small"
         checked={isSelected}
         onClick={handleUpdateIsSelected}
+        disabled={threadStatus !== "ACTIVE"}
       />
       <Box sx={{}}>
         {comment.user && (
-          <Typography variant="body1" component="p">
+          <Typography variant="body2" component="p">
             {comment.user.name}
           </Typography>
         )}
-        <Paper
-          variant="outlined"
+        <Button
+          variant={comment.id === parentId ? "contained" : "outlined"}
+          onClick={handleChangeParentId}
           sx={{
-            textAlign: "start",
-            padding: "1rem 2rem",
-            whiteSpace: "pre-wrap",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "start",
           }}
         >
-          {comment.content}
-        </Paper>
+          {comment.parent && (
+            <Typography
+              variant="caption"
+              color="grey.500"
+              mt={1}
+              sx={{
+                padding: "0.05rem 0.5rem",
+                textAlign: "start",
+                whiteSpace: "pre-wrap",
+                fontStyle: "grey.500",
+                border: 1,
+                borderColor: "grey.500",
+                borderRadius: 1,
+              }}
+            >
+              {comment.parent.content}
+            </Typography>
+          )}
+          <Typography
+            variant="body1"
+            sx={{
+              textAlign: "start",
+              padding: { xs: "0.25rem 0.5rem", sm: "0.5rem 1rem" },
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {comment.content}
+          </Typography>
+        </Button>
       </Box>
     </Box>
   );

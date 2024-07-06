@@ -1,3 +1,5 @@
+"use client";
+
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import {
   Box,
@@ -7,6 +9,7 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import type { Manual } from "@prisma/client";
 import { format } from "date-fns";
@@ -19,8 +22,13 @@ interface ManualDetailProps {
 }
 
 const ManualDetail = ({ manual, userId }: ManualDetailProps) => {
+  const sm = useMediaQuery("(min-width:600px)");
+
   return (
-    <Paper elevation={4} sx={{ padding: 4, margin: 4 }}>
+    <Paper
+      elevation={sm ? 4 : 0}
+      sx={{ padding: { xs: 0, sm: 4 }, margin: { xs: "2rem 0", sm: 4 } }}
+    >
       <Stack spacing={4}>
         <Box
           sx={{
