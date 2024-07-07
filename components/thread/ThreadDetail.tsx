@@ -4,6 +4,8 @@ import CommentItem from "@/components/comment/CommentItem";
 import CommentNew from "@/components/comment/CommentNew";
 import ManualAddDialogButton from "@/components/manual/ManualAdd";
 import ThreadProfileButton from "@/components/thread/ThreadProfile";
+import { pusherClient } from "@/lib/pusher/client";
+import { CommentWithUser } from "@/types/comment";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
 import type { ButtonProps } from "@mui/material";
@@ -17,7 +19,7 @@ import {
 } from "@mui/material";
 import type { Manual } from "@prisma/client";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ManualItemProps extends ButtonProps {
   manual: Manual;
@@ -51,14 +53,31 @@ const ThreadDetail = ({
 }: ThreadDetailProps) => {
   const sm = useMediaQuery("(min-width:600px)");
   const [parentId, setParentId] = useState<string>();
-  const boxRef = useRef<HTMLDivElement>(null);
+  const [comments, setComments] = useState<CommentWithUser[]>(thread.comments);
 
   const handleChangeParentId = (id?: string) => {
     setParentId(id);
   };
+
+  useEffect(() => {
+    const channel = pusherClient
+      .subscribe(thread.id)
+      .bind("new-comment", (data: CommentWithUser) => {
+        setComments((prevComments) => [...prevComments, data]);
+      })
+      .bind("update-comment", (data: CommentWithUser) => {
+        setComments((prevComments) =>
+          prevComments.map((comment) =>
+            comment.id === data.id ? data : comment,
+          ),
+        );
+      });
+    return () => {
+      channel.unbind();
+    };
+  }, []);
   return (
     <Box
-      ref={boxRef}
       sx={{
         width: "100%",
         height: "100%",
@@ -79,8 +98,8 @@ const ThreadDetail = ({
       <Box
         sx={{
           width: "100%",
-          flex: 1,
           display: "flex",
+          flex: 1,
           gap: 1,
           paddingBottom: 4,
         }}
@@ -130,8 +149,15 @@ const ThreadDetail = ({
             paddingX: { xs: 0, sm: "2rem" },
           }}
         >
-          <Stack spacing={2} sx={{ marginY: 2 }}>
-            {thread.comments.map((comment) => (
+          <Stack
+            spacing={2}
+            sx={{
+              marginY: 2,
+              overflowY: "auto",
+              paddingX: { xs: 0, sm: "1rem" },
+            }}
+          >
+            {comments.map((comment) => (
               <CommentItem
                 key={comment.id}
                 comment={comment}
@@ -145,7 +171,7 @@ const ThreadDetail = ({
           {thread.status === "ACTIVE" && (
             <CommentNew
               threadId={thread.id}
-              parentComment={thread.comments.find(
+              parentComment={comments.find(
                 (comment) => comment.id === parentId,
               )}
               onChangeParentId={handleChangeParentId}
