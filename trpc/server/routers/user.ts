@@ -227,7 +227,7 @@ export const userRouter = router({
           });
         }
 
-        await prisma.user.update({
+        const updatedUser = await prisma.user.update({
           where: {
             id: user.id,
           },
@@ -235,6 +235,8 @@ export const userRouter = router({
             schoolId,
           },
         });
+
+        return updatedUser;
       } catch (error) {
         console.log(error);
 

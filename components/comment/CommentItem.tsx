@@ -2,7 +2,7 @@
 
 import { trpc } from "@/trpc/react";
 import type { CommentWithUser } from "@/types/comment";
-import { Box, Button, Checkbox, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Paper, Typography } from "@mui/material";
 import { ThreadStatus } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -27,17 +27,18 @@ const CommentItem = ({
   const router = useRouter();
   const [isSelected, setIsSlected] = useState(comment.isSelected);
 
-  const { mutate: updateComment } = trpc.comment.updateComment.useMutation({
-    onSuccess: () => {
-      toast.success("コメントを更新しました");
-      router.refresh();
-    },
-    onError: (error) => {
-      toast.error("マニュアルの作成に失敗しました");
-      console.error(error);
-      setIsSlected((prev) => !prev);
-    },
-  });
+  const { mutate: updateComment, isLoading } =
+    trpc.comment.updateComment.useMutation({
+      onSuccess: () => {
+        toast.success("コメントを更新しました");
+        router.refresh();
+      },
+      onError: (error) => {
+        toast.error("コメントを更新に失敗しました");
+        console.error(error);
+        setIsSlected((prev) => !prev);
+      },
+    });
 
   const handleUpdateIsSelected = () => {
     setIsSlected((prev) => !prev);
@@ -62,7 +63,9 @@ const CommentItem = ({
         size="small"
         checked={isSelected}
         onClick={handleUpdateIsSelected}
-        disabled={threadStatus !== "ACTIVE"}
+        disabled={
+          threadStatus === "CLOSED" || threadStatus === "INACTIVE" || isLoading
+        }
       />
       <Box sx={{}}>
         {comment.user && (
@@ -71,7 +74,8 @@ const CommentItem = ({
           </Typography>
         )}
         <Button
-          variant={comment.id === parentId ? "contained" : "outlined"}
+          variant="outlined"
+          color={comment.id === parentId ? "info" : "primary"}
           onClick={handleChangeParentId}
           sx={{
             display: "flex",
@@ -80,22 +84,18 @@ const CommentItem = ({
           }}
         >
           {comment.parent && (
-            <Typography
-              variant="caption"
-              color="grey.500"
-              mt={1}
+            <Paper
+              variant="outlined"
               sx={{
-                padding: "0.05rem 0.5rem",
-                textAlign: "start",
-                whiteSpace: "pre-wrap",
-                fontStyle: "grey.500",
-                border: 1,
-                borderColor: "grey.500",
-                borderRadius: 1,
+                padding: "0.25rem 0.5rem",
+                marginY: 1,
+                backgroundColor: "inherit",
               }}
             >
-              {comment.parent.content}
-            </Typography>
+              <Typography variant="body2" textAlign="start">
+                {comment.parent.content}
+              </Typography>
+            </Paper>
           )}
           <Typography
             variant="body1"

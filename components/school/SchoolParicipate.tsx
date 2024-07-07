@@ -3,8 +3,7 @@
 import RhfTextField from "@/components/ui/RhfTextField";
 import { trpc } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type {
-  ButtonProps} from "@mui/material";
+import type { ButtonProps } from "@mui/material";
 import {
   Button,
   Dialog,
@@ -63,14 +62,15 @@ const SchoolParticipateDialog = ({
 
   const { mutate: updateUserSchool, isLoading } =
     trpc.user.updateUserSchool.useMutation({
-      onSuccess: async () => {
+      onSuccess: async (user) => {
         toast.success("学校に参加しました");
         await update({
           user: {
-            schoolId: school.id,
+            schoolId: user.schoolId,
           },
-        });
-        router.push("/");
+        })
+          .then(() => router.refresh())
+          .then(() => router.push("/"));
       },
       onError: (error) => {
         toast.error("学校の参加に失敗しました");
@@ -121,7 +121,7 @@ const SchoolParticipateDialog = ({
               fullWidth
               type="password"
             />
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit" disabled={isLoading}>
               参加する
             </Button>
           </Stack>

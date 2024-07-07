@@ -3,8 +3,7 @@
 import RhfTextField from "@/components/ui/RhfTextField";
 import { trpc } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type {
-  ButtonProps} from "@mui/material";
+import type { ButtonProps } from "@mui/material";
 import {
   Button,
   Dialog,
@@ -63,8 +62,9 @@ const SchoolAddDialog = ({ userId, open, onClose }: SchoolAddDialogProps) => {
           user: {
             schoolId: school.id,
           },
-        });
-        router.push("/");
+        })
+          .then(() => router.refresh())
+          .then(() => router.push("/"));
       },
       onError: (error) => {
         toast.error("学校の作成に失敗しました");
@@ -121,7 +121,7 @@ const SchoolAddDialog = ({ userId, open, onClose }: SchoolAddDialogProps) => {
               fullWidth
               type="password"
             />
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit" disabled={isLoading}>
               参加する
             </Button>
           </Stack>

@@ -5,7 +5,14 @@ import { trpc } from "@/trpc/react";
 import { CommentWithUser } from "@/types/comment";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ClearIcon from "@mui/icons-material/Clear";
-import { Box, Button, IconButton, Paper, Stack } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
@@ -68,14 +75,14 @@ const CommentNew = ({
           <Paper
             variant="outlined"
             sx={{
-              padding: "0.05rem 0.5rem",
+              padding: "0.25rem 0.5rem",
               marginY: 1,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
             }}
           >
-            {parentComment?.content}
+            <Typography variant="body2">{parentComment.content}</Typography>
             <IconButton onClick={() => onChangeParentId(undefined)}>
               <ClearIcon />
             </IconButton>
