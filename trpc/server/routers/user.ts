@@ -5,6 +5,40 @@ import prisma from "@/lib/prisma";
 import { privateProcedure, publicProcedure, router } from "@/trpc/server/trpc";
 
 export const userRouter = router({
+  getUserByEmail: publicProcedure
+    .input(z.object({ email: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const { email } = input;
+
+        const user = await prisma.user.findFirst({
+          where: {
+            email,
+          },
+          include: { school: { select: { id: true, name: true } } },
+        });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        return user;
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ユーザの取得に失敗しました",
+          });
+        }
+      }
+    }),
   updateAdmin: privateProcedure
     .input(
       z.object({
@@ -102,8 +136,8 @@ export const userRouter = router({
   getScooleMembers: privateProcedure
     .input(
       z.object({
-        limit: z.number(),
-        offset: z.number(),
+        limit: z.number().optional(),
+        offset: z.number().optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -122,6 +156,18 @@ export const userRouter = router({
         const members = await prisma.user.findMany({
           where: {
             schoolId: user.schoolId,
+          },
+          include: {
+            roles: {
+              select: {
+                role: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
           skip: offset,
           take: limit,
@@ -146,7 +192,7 @@ export const userRouter = router({
         }
       }
     }),
-  updateSchool: privateProcedure
+  updateUserSchool: privateProcedure
     .input(z.object({ schoolId: z.string(), password: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -181,12 +227,68 @@ export const userRouter = router({
           });
         }
 
-        await prisma.user.update({
+        const updatedUser = await prisma.user.update({
           where: {
             id: user.id,
           },
           data: {
-            schoolId: schoolId,
+            schoolId,
+          },
+        });
+
+        return updatedUser;
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "学校の更新に失敗しました",
+          });
+        }
+      }
+    }),
+  craeteUserRole: privateProcedure
+    .input(z.object({ roleId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { roleId } = input;
+
+        const user = await ctx.user;
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        const role = await prisma.role.findUnique({
+          where: {
+            id: roleId,
+          },
+        });
+
+        if (!role) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "役職が見つかりません",
+          });
+        }
+
+        if (role.schoolId !== user.schoolId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "所属学校の役職ではありません",
+          });
+        }
+
+        await prisma.roleUser.create({
+          data: {
+            userId: user.id,
+            roleId,
           },
         });
       } catch (error) {
@@ -197,7 +299,7 @@ export const userRouter = router({
         } else {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "学校の更新に失敗しました",
+            message: "役職の紐づけに失敗しました",
           });
         }
       }

@@ -81,20 +81,22 @@ model School {
   users     User[]
   threads   Thread[]
   roles     Role[]
+  manuals   Manual[]
 }
 
 model Thread {
-  id          String       @id @default(cuid())
-  userId      String?
-  schoolId    String
-  title       String
-  description String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  status      ThreadStatus @default(ACTIVE)
-  comments    Comment[]
-  manuals     Manual[]
-  subscribers ThreadUser[]
+  id            String         @id @default(cuid())
+  userId        String?
+  schoolId      String
+  title         String
+  description   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  status        ThreadStatus   @default(ACTIVE)
+  comments      Comment[]
+  manuals       Manual[]
+  subscribers   ThreadUser[]
+  linkedManuals ThreadManual[]
 
   user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
   school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
@@ -104,30 +106,47 @@ model ThreadUser {
   id        String   @id @default(cuid())
   userId    String
   threadId  String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   @@unique([userId, threadId])
 }
 
 model Manual {
+  id            String         @id @default(cuid())
+  userId        String?
+  schoolId      String?
+  threadId      String?
+  title         String
+  content       String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  linkedThreads ThreadManual[]
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  thread Thread? @relation(fields: [threadId], references: [id], onDelete: SetNull)
+  school School? @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+}
+
+model ThreadManual {
   id        String   @id @default(cuid())
-  userId    String
-  threadId  String?
-  title     String
-  content   String
+  threadId  String
+  manualId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  thread Thread? @relation(fields: [threadId], references: [id], onDelete: SetNull)
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  manual Manual @relation(fields: [manualId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, manualId])
 }
 
 model Comment {
   id         String   @id @default(cuid())
-  userId     String
+  userId     String?
   threadId   String
   content    String
   createdAt  DateTime @default(now())
@@ -138,7 +157,7 @@ model Comment {
   replies Comment[] @relation("CommentToParent")
   parent  Comment?  @relation("CommentToParent", fields: [parentId], references: [id], onDelete: SetNull)
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
   thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 }
 

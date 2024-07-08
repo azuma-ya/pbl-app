@@ -2,7 +2,10 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import prisma from "@/lib/prisma";
+import { getPusherInstance } from "@/lib/pusher/server";
 import { privateProcedure, router } from "@/trpc/server/trpc";
+
+const pusherServer = getPusherInstance();
 
 export const commentRouter = router({
   createComment: privateProcedure
@@ -32,7 +35,19 @@ export const commentRouter = router({
             threadId,
             parentId,
           },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+            parent: true,
+          },
         });
+
+        await pusherServer.trigger(threadId, "new-comment", comment);
 
         return comment;
       } catch (error) {
@@ -122,10 +137,16 @@ export const commentRouter = router({
       }
     }),
   updateComment: privateProcedure
-    .input(z.object({ commentId: z.string(), content: z.string() }))
+    .input(
+      z.object({
+        commentId: z.string(),
+        content: z.string().optional(),
+        isSelected: z.boolean().optional(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { commentId, content } = input;
+        const { commentId, content, isSelected } = input;
         const user = await ctx.user;
 
         if (!user) {
@@ -148,23 +169,40 @@ export const commentRouter = router({
           });
         }
 
-        if (user.id !== comment.userId) {
+        if (user.id !== comment.userId && !!content) {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: "コメントの編集権限がありません",
           });
         }
 
-        await prisma.comment.update({
+        const updatedComment = await prisma.comment.update({
           where: {
             id: commentId,
           },
           data: {
             content,
+            isSelected,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+            parent: true,
           },
         });
 
-        return comment;
+        await pusherServer.trigger(
+          updatedComment.threadId,
+          "update-comment",
+          updatedComment,
+        );
+
+        return updatedComment;
       } catch (error) {
         console.log(error);
 
