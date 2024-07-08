@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   Dialog,
   DialogTitle,
   Table,
@@ -290,7 +291,11 @@ export const EnhancedUserTable = ({
                   >
                     {row.name + " 先生"}
                   </TableCell>
-                  <TableCell align="right">{row.roles.toString()}</TableCell>
+                  <TableCell align="left" sx={{ display: "flex", gap: 1 }}>
+                    {row.roles.map((roleUser) => (
+                      <Chip key={roleUser.role.id} label={roleUser.role.name} />
+                    ))}
+                  </TableCell>
                 </TableRow>
               );
             })}

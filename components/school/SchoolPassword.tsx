@@ -66,7 +66,7 @@ const SchoolPassword = () => {
         flexDirection: "column",
         gap: "2rem",
       }}
-      component={"form"}
+      component="form"
       onSubmit={form.handleSubmit(onSubmit)}
     >
       <RhfTextField

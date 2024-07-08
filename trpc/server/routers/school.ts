@@ -19,11 +19,38 @@ export const schoolRouter = router({
           });
         }
 
-        const school = await prisma.school.create({
-          data: {
-            name,
-            password,
-          },
+        const school = await prisma.$transaction(async (prisma) => {
+          const school = await prisma.school.create({
+            data: {
+              name,
+              password,
+            },
+          });
+
+          const role = await prisma.role.create({
+            data: {
+              name: "管理者",
+              schoolId: school.id,
+            },
+          });
+
+          await prisma.roleUser.create({
+            data: {
+              userId: user.id,
+              roleId: role.id,
+            },
+          });
+
+          await prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              isAdmin: true,
+            },
+          });
+
+          return school;
         });
 
         return school;
@@ -130,13 +157,12 @@ export const schoolRouter = router({
   createRole: privateProcedure
     .input(
       z.object({
-        schoolId: z.string(),
         name: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { schoolId, name } = input;
+        const { name } = input;
         const user = await ctx.user;
 
         if (!user) {
@@ -153,13 +179,6 @@ export const schoolRouter = router({
           });
         }
 
-        if (user.schoolId !== schoolId) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "所属学校ではありません",
-          });
-        }
-
         if (!user.isAdmin) {
           throw new TRPCError({
             code: "BAD_REQUEST",
@@ -169,7 +188,7 @@ export const schoolRouter = router({
 
         const role = await prisma.role.create({
           data: {
-            schoolId,
+            schoolId: user.schoolId,
             name,
           },
         });
@@ -186,6 +205,55 @@ export const schoolRouter = router({
             message: "役職の作成に失敗しました",
           });
         }
+      }
+    }),
+  getRoles: privateProcedure
+    .input(
+      z.object({
+        limit: z.number().optional(),
+        offset: z.number().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const { limit, offset } = input;
+        const user = await ctx.user;
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        if (!user.schoolId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "学校に所属していません",
+          });
+        }
+
+        const roles = await prisma.role.findMany({
+          skip: offset,
+          take: limit,
+          where: {
+            schoolId: user.schoolId,
+          },
+        });
+
+        const totalRoles = await prisma.role.count({
+          where: {
+            schoolId: user.schoolId,
+          },
+        });
+
+        return { roles, totalRoles };
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "役職一覧取得に失敗しました",
+        });
       }
     }),
 });
