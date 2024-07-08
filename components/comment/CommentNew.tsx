@@ -13,11 +13,9 @@ import {
 import { useRouter } from "next/navigation";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
 import { z } from "zod";
 
 import RhfTextField from "@/components/ui/RhfTextField";
-import { trpc } from "@/trpc/react";
 import type { CommentWithUser } from "@/types/comment";
 
 //入力データの検証ルールを定義
@@ -48,25 +46,40 @@ const CommentNew = ({
     },
   });
 
-  const { mutate: createComment, isLoading } =
-    trpc.comment.createComment.useMutation({
-      onSuccess: () => {
-        // toast.success("投稿しました");
-        form.reset();
-        onChangeParentId(undefined);
-        router.refresh();
-      },
-      onError: (error) => {
-        toast.error(error.message);
-        console.error(error);
-      },
-    });
+  // const { mutate: createComment, isLoading } =
+  //   trpc.comment.createComment.useMutation({
+  //     onSuccess: () => {
+  //       // toast.success("投稿しました");
+  //       form.reset();
+  //       onChangeParentId(undefined);
+  //       router.refresh();
+  //     },
+  //     onError: (error) => {
+  //       toast.error(error.message);
+  //       console.error(error);
+  //     },
+  //   });
 
-  const onSubmit: SubmitHandler<InputType> = (data) => {
-    createComment({
-      threadId,
-      content: data.content,
-      parentId: parentComment?.id,
+  const onSubmit: SubmitHandler<InputType> = async (data) => {
+    // createComment({
+    //   threadId,
+    //   content: data.content,
+    //   parentId: parentComment?.id,
+    // });
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/comment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        threadId,
+        content: data.content,
+        parentId: parentComment?.id,
+      }),
+    }).then(() => {
+      form.reset();
+      onChangeParentId(undefined);
+      router.refresh();
     });
   };
   return (
@@ -115,7 +128,7 @@ const CommentNew = ({
             variant="contained"
             type="submit"
             sx={{ padding: { xs: "1rem 2rem", sm: "1rem 4rem" } }}
-            disabled={isLoading}
+            // disabled={isLoading}
           >
             送信
           </Button>

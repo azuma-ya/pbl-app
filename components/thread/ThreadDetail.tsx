@@ -67,14 +67,14 @@ const ThreadDetail = ({
       .subscribe(thread.id)
       .bind("new-comment", (data: CommentWithUser) => {
         setComments((prevComments) => [...prevComments, data]);
-      })
-      .bind("update-comment", (data: CommentWithUser) => {
-        setComments((prevComments) =>
-          prevComments.map((comment) =>
-            comment.id === data.id ? data : comment,
-          ),
-        );
       });
+    // .bind("update-comment", (data: CommentWithUser) => {
+    //   setComments((prevComments) =>
+    //     prevComments.map((comment) =>
+    //       comment.id === data.id ? data : comment,
+    //     ),
+    //   );
+    // });
     return () => {
       channel.unbind();
     };
