@@ -1,5 +1,7 @@
 import { getPusherInstance } from "@/lib/pusher/server";
 
+export const dynamic = "force-dynamic";
+
 const pusherServer = getPusherInstance();
 
 export async function POST(req: Request) {
