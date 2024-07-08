@@ -291,9 +291,13 @@ export const EnhancedUserTable = ({
                   >
                     {row.name + " 先生"}
                   </TableCell>
-                  <TableCell align="left" sx={{ display: "flex", gap: 1 }}>
+                  <TableCell align="left">
                     {row.roles.map((roleUser) => (
-                      <Chip key={roleUser.role.id} label={roleUser.role.name} />
+                      <Chip
+                        key={roleUser.role.id}
+                        label={roleUser.role.name}
+                        sx={{ mr: 1 }}
+                      />
                     ))}
                   </TableCell>
                 </TableRow>
