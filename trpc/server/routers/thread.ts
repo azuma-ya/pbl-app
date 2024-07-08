@@ -107,6 +107,18 @@ export const threadRouter = router({
       const threads = await prisma.thread.findMany({
         where: {
           schoolId: user.schoolId,
+          OR: [
+            {
+              userId: user.id,
+            },
+            {
+              subscribers: {
+                some: {
+                  userId: user.id,
+                },
+              },
+            },
+          ],
         },
         include: {
           user: {
