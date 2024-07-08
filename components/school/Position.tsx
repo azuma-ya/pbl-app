@@ -17,29 +17,27 @@ const Position = () => {
     setAge(event.target.value as string);
   };
   return (
-    <Box>
-      {/* //"Age"でなく"教員名"にするには？ labelを変更？ //教員名の選択 */}
-      <Box sx={{ minWidth: 120, textAlign: "center" }}>
+    <Box sx={{ width:"100%" , height:"100vh" , display:"flex" , alignItems:"center" , justifyContent:"center" , flexDirection:"column" , gap:"6rem" }}>
+      <Box sx={{ width:"100%" , minWidth:"20rem" , maxWidth:"24rem" }}>
         <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Age</InputLabel>
+          <InputLabel id="demo-simple-select-label">教員名</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             value={age}
-            label="Age"
+            label="教員名"
             onChange={handleChange}
           >
-            {/* //valueとかは何にしたらよいか？ */}
             <MenuItem value={0}>〇〇先生</MenuItem>
             <MenuItem value={1}>〇〇先生</MenuItem>
             <MenuItem value={2}>〇〇先生</MenuItem>
           </Select>
         </FormControl>
       </Box>
-      {/* //役職の選択 */}
-      <Box sx={{ minWidth: 120, textAlign: "center" }}>
+
+      <Box sx={{ width:"100%" , minWidth:"20rem" , maxWidth:"24rem" }}>
         <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Age</InputLabel>
+          <InputLabel id="demo-simple-select-label">役職</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
@@ -54,11 +52,14 @@ const Position = () => {
           </Select>
         </FormControl>
       </Box>
-      {/* //チェックボックス ??? */}
-      <Checkbox />
+
+      <Box>
+        <Checkbox />権限を付与
+      </Box>
+
       <Button
         variant="contained"
-        sx={{ background: "#2f4f4f", textAlign: "center", padding: "5px,50%" }}
+        sx={{ width:"100%" , maxWidth:"50rem" , paddingY:"1rem" }}
       >
         決定
       </Button>
