@@ -26,9 +26,10 @@ type InputType = z.infer<typeof schema>;
 
 interface ThreadNewProps {
   users: UserWithRoles[];
+  userId: string;
 }
 
-const ThreadNew = ({ users }: ThreadNewProps) => {
+const ThreadNew = ({ users, userId }: ThreadNewProps) => {
   const router = useRouter();
   const [subscriberIds, setSubscriberIds] = useState<string[]>([]);
 
@@ -101,7 +102,7 @@ const ThreadNew = ({ users }: ThreadNewProps) => {
         control={form.control}
       />
       <UserAddButton
-        users={users}
+        users={users.filter((user) => user.id !== userId)}
         subscriberIds={subscriberIds}
         onChangeSubscriberIds={handleChangeSubscriberIds}
         variant="contained"

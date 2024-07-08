@@ -50,9 +50,13 @@ const Navigation = ({ user }: NavigarionProps) => {
       <Toolbar>
         {user ? (
           <>
-            <Typography variant="h6" component="div" sx={{ mr: 2 }}>
+            <Button
+              sx={{ color: "white", mr: 2, fontSize: "1.2rem" }}
+              LinkComponent={Link}
+              href="/"
+            >
               {user?.school?.name}
-            </Typography>
+            </Button>
             <Box
               sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, gap: 2 }}
             >

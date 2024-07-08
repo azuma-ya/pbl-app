@@ -2,9 +2,8 @@
 
 import type { UserWithRoles } from "@/types/user";
 import GroupsIcon from "@mui/icons-material/Groups";
-import type { ButtonProps } from "@mui/material";
+import type { ButtonProps, TableCellProps } from "@mui/material";
 import {
-  alpha,
   Box,
   Button,
   Checkbox,
@@ -20,9 +19,9 @@ import {
   TextField,
   Toolbar,
   Typography,
+  alpha,
   useMediaQuery,
 } from "@mui/material";
-import { format } from "date-fns";
 import React, { useState } from "react";
 
 interface HeadCell {
@@ -30,6 +29,7 @@ interface HeadCell {
   id: keyof UserWithRoles;
   label: string;
   numeric: boolean;
+  props?: TableCellProps;
 }
 
 const headCells: readonly HeadCell[] = [
@@ -38,18 +38,18 @@ const headCells: readonly HeadCell[] = [
     numeric: false,
     disablePadding: true,
     label: "名前",
+    props: {
+      sx: { width: 120 },
+    },
   },
   {
     id: "roles",
     numeric: false,
     disablePadding: false,
     label: "役職",
-  },
-  {
-    id: "updatedAt",
-    numeric: false,
-    disablePadding: false,
-    label: "updatedAt",
+    props: {
+      sx: { flex: 1 },
+    },
   },
 ];
 
@@ -83,6 +83,7 @@ const EnhancedUserTableHead = ({
             key={headCell.id}
             align={headCell.numeric ? "right" : "left"}
             padding={headCell.disablePadding ? "none" : "normal"}
+            {...headCell.props}
           >
             {headCell.label}
           </TableCell>
@@ -287,12 +288,9 @@ export const EnhancedUserTable = ({
                     scope="row"
                     padding="none"
                   >
-                    {row.name}
+                    {row.name + " 先生"}
                   </TableCell>
                   <TableCell align="right">{row.roles.toString()}</TableCell>
-                  <TableCell align="right">
-                    {format(new Date(row.updatedAt), "yyyy/MM/dd HH:mm")}
-                  </TableCell>
                 </TableRow>
               );
             })}

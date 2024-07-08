@@ -44,16 +44,16 @@ const headCells: readonly HeadCell[] = [
     label: "Title",
   },
   {
-    id: "userId",
+    id: "content",
     numeric: false,
     disablePadding: false,
-    label: "UserId",
+    label: "内容",
   },
   {
     id: "updatedAt",
     numeric: false,
     disablePadding: false,
-    label: "updatedAt",
+    label: "更新日",
   },
 ];
 
@@ -297,7 +297,7 @@ const EnhancedManualTable = ({
                       </Button>
                     )}
                   </TableCell>
-                  <TableCell align="right">{row.userId}</TableCell>
+                  <TableCell align="left">{row.content.slice(0, 20)}</TableCell>
                   <TableCell align="right">
                     {format(new Date(row.updatedAt), "yyyy/MM/dd HH:mm")}
                   </TableCell>

@@ -73,14 +73,13 @@ export const schoolRouter = router({
   updateSchool: privateProcedure
     .input(
       z.object({
-        schoolId: z.string(),
         name: z.string().optional(),
         password: z.string().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const { schoolId, name, password } = input;
+        const { name, password } = input;
         const user = await ctx.user;
 
         if (!user) {
@@ -97,13 +96,6 @@ export const schoolRouter = router({
           });
         }
 
-        if (user.schoolId !== schoolId) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "所属学校ではありません",
-          });
-        }
-
         if (!user.isAdmin) {
           throw new TRPCError({
             code: "BAD_REQUEST",
@@ -113,7 +105,7 @@ export const schoolRouter = router({
 
         const school = await prisma.school.update({
           where: {
-            id: schoolId,
+            id: user.schoolId,
           },
           data: {
             name,
