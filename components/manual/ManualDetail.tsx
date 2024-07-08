@@ -21,7 +21,7 @@ interface ManualDetailProps {
   userId: string;
 }
 
-const ManualDetail = ({ manual, userId }: ManualDetailProps) => {
+const ManualDetail = ({ manual }: ManualDetailProps) => {
   const sm = useMediaQuery("(min-width:600px)");
 
   return (

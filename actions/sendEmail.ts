@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import nodemailer from "nodemailer";
-import Mail from "nodemailer/lib/mailer";
+import type Mail from "nodemailer/lib/mailer";
 
 //SMTPサーバの設定
 const transport = nodemailer.createTransport({
@@ -22,7 +22,7 @@ export const sendEmail = async (
   const mailOptions: Mail.Options = {
     from: process.env.NODEMAILER_EMAIL,
     to: sendTo,
-    subject: subject,
+    subject,
     html: body,
   };
 

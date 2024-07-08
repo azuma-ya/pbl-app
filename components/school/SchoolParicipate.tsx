@@ -44,7 +44,6 @@ interface SchoolParticipateDialogProps {
 }
 
 const SchoolParticipateDialog = ({
-  userId,
   school,
   open,
   onClose,

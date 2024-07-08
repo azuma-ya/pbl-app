@@ -1,13 +1,13 @@
 "use client";
 
-import { trpc } from "@/trpc/react";
-import type { CommentWithUser } from "@/types/comment";
 import { Box, Button, Checkbox, Paper, Typography } from "@mui/material";
-import { ThreadStatus } from "@prisma/client";
+import type { ThreadStatus } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
 import toast from "react-hot-toast";
+
+import { trpc } from "@/trpc/react";
+import type { CommentWithUser } from "@/types/comment";
 
 interface CommentItemProps {
   comment: CommentWithUser;

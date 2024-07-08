@@ -1,8 +1,5 @@
 "use client";
 
-import RhfTextField from "@/components/ui/RhfTextField";
-import { trpc } from "@/trpc/react";
-import { CommentWithUser } from "@/types/comment";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ClearIcon from "@mui/icons-material/Clear";
 import {
@@ -18,6 +15,10 @@ import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+
+import RhfTextField from "@/components/ui/RhfTextField";
+import { trpc } from "@/trpc/react";
+import type { CommentWithUser } from "@/types/comment";
 
 //入力データの検証ルールを定義
 const schema = z.object({

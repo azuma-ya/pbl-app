@@ -2,7 +2,16 @@ import { Box } from "@mui/material";
 
 const NotFound = () => {
   return (
-    <Box>
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+      }}
+    >
       <Box
         sx={{
           textAlign: "center",

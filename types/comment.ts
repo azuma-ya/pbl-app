@@ -5,5 +5,5 @@ export type Comment = PrismaComment;
 
 export type CommentWithUser = Comment & {
   user: Pick<User, "id" | "name" | "image"> | null;
-  parent?: Comment;
+  parent: Comment | null;
 };

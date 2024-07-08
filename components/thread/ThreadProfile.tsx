@@ -233,7 +233,7 @@ const ThreadProfileButton = ({
   const [selectedUsers, setSelectedUsers] = useState(initialSelectedUsers);
   const [isUpdate, setIsUpdate] = useState(false);
 
-  const { mutate: updateSubscribers, isLoading } =
+  const { mutate: updateSubscribers } =
     trpc.thread.updateThreadSubsucribers.useMutation({
       onSuccess: () => {
         toast.success("参加者の更新に成功しました");

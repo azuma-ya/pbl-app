@@ -42,7 +42,7 @@ interface SchoolAddDialogProps {
   onClose: () => void;
 }
 
-const SchoolAddDialog = ({ userId, open, onClose }: SchoolAddDialogProps) => {
+const SchoolAddDialog = ({ open, onClose }: SchoolAddDialogProps) => {
   const router = useRouter();
   const { update } = useSession();
 

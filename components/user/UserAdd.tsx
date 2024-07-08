@@ -2,12 +2,12 @@
 
 import type { UserWithRoles } from "@/types/user";
 import GroupsIcon from "@mui/icons-material/Groups";
-import type { ButtonProps } from "@mui/material";
+import type { ButtonProps, TableCellProps } from "@mui/material";
 import {
-  alpha,
   Box,
   Button,
   Checkbox,
+  Chip,
   Dialog,
   DialogTitle,
   Table,
@@ -20,9 +20,9 @@ import {
   TextField,
   Toolbar,
   Typography,
+  alpha,
   useMediaQuery,
 } from "@mui/material";
-import { format } from "date-fns";
 import React, { useState } from "react";
 
 interface HeadCell {
@@ -30,6 +30,7 @@ interface HeadCell {
   id: keyof UserWithRoles;
   label: string;
   numeric: boolean;
+  props?: TableCellProps;
 }
 
 const headCells: readonly HeadCell[] = [
@@ -38,18 +39,18 @@ const headCells: readonly HeadCell[] = [
     numeric: false,
     disablePadding: true,
     label: "名前",
+    props: {
+      sx: { width: 120 },
+    },
   },
   {
     id: "roles",
     numeric: false,
     disablePadding: false,
     label: "役職",
-  },
-  {
-    id: "updatedAt",
-    numeric: false,
-    disablePadding: false,
-    label: "updatedAt",
+    props: {
+      sx: { flex: 1 },
+    },
   },
 ];
 
@@ -83,6 +84,7 @@ const EnhancedUserTableHead = ({
             key={headCell.id}
             align={headCell.numeric ? "right" : "left"}
             padding={headCell.disablePadding ? "none" : "normal"}
+            {...headCell.props}
           >
             {headCell.label}
           </TableCell>
@@ -96,8 +98,8 @@ interface EnhancedUserTableToolbarProps {
   numSelected: number;
   searched: string;
   isUpdate: boolean;
-  changeSearchedHandler: (event: any) => void;
-  onUpdate: () => void;
+  changeSearchedHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onUpdate?: () => void;
 }
 
 const EnhancedUserTableToolbar = ({
@@ -126,24 +128,33 @@ const EnhancedUserTableToolbar = ({
       <TextField
         label="Search"
         value={searched}
-        onChange={(event: any) => changeSearchedHandler(event)}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+          changeSearchedHandler(event)
+        }
         variant="filled"
       />
       <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
         {numSelected > 0 && sm && (
-          <Typography color="inherit" variant="subtitle1" component="div">
+          <Typography
+            color="inherit"
+            variant="subtitle1"
+            component="div"
+            sx={{ marginRight: 2 }}
+          >
             {numSelected} 選択中
           </Typography>
         )}
-        <Button
-          variant="contained"
-          sx={{ margin: 2, width: "8rem", verticalAlign: "center" }}
-          onClick={onUpdate}
-          disabled={!isUpdate}
-        >
-          <GroupsIcon sx={{ marginRight: 2 }} />
-          更新
-        </Button>
+        {onUpdate && (
+          <Button
+            variant="contained"
+            sx={{ margin: 2, width: "8rem", verticalAlign: "center" }}
+            onClick={onUpdate}
+            disabled={!isUpdate}
+          >
+            <GroupsIcon sx={{ marginRight: 2 }} />
+            更新
+          </Button>
+        )}
       </Box>
     </Toolbar>
   );
@@ -153,7 +164,7 @@ interface EnhancedUserTableProps {
   users: UserWithRoles[];
   selectedUsers: string[];
   isUpdate: boolean;
-  onUpdate: () => void;
+  onUpdate?: () => void;
   onChangeSelected: (value: string[]) => void;
 }
 
@@ -204,7 +215,9 @@ export const EnhancedUserTable = ({
     setRows(filteredRows);
   };
 
-  const changeSearchedHandler = (event: any) => {
+  const changeSearchedHandler = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setSearched(event.target.value);
     requestSearch(event.target.value);
   };
@@ -220,10 +233,6 @@ export const EnhancedUserTable = ({
     setPage(0);
   };
 
-  const handleUpdate = () => {
-    onUpdate();
-  };
-
   const isSelected = (id: string) => selectedUsers.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -236,7 +245,7 @@ export const EnhancedUserTable = ({
         numSelected={selectedUsers.length}
         searched={searched}
         changeSearchedHandler={changeSearchedHandler}
-        onUpdate={handleUpdate}
+        onUpdate={onUpdate}
         isUpdate={isUpdate}
       />
       <TableContainer>
@@ -280,11 +289,12 @@ export const EnhancedUserTable = ({
                     scope="row"
                     padding="none"
                   >
-                    {row.name}
+                    {row.name + " 先生"}
                   </TableCell>
-                  <TableCell align="right">{row.roles.toString()}</TableCell>
-                  <TableCell align="right">
-                    {format(new Date(row.updatedAt), "yyyy/MM/dd HH:mm")}
+                  <TableCell align="left" sx={{ display: "flex", gap: 1 }}>
+                    {row.roles.map((roleUser) => (
+                      <Chip key={roleUser.role.id} label={roleUser.role.name} />
+                    ))}
                   </TableCell>
                 </TableRow>
               );
@@ -320,7 +330,7 @@ export interface UserAddDialogProps {
   selectedUsers: string[];
   isUpdate: boolean;
   onClose: () => void;
-  onUpdate: () => void;
+  onUpdate?: () => void;
   onChangeSelected: (value: string[]) => void;
 }
 
@@ -335,10 +345,6 @@ const UserAddDialog = ({
 }: UserAddDialogProps) => {
   const handleClose = () => {
     onClose();
-  };
-
-  const handleUpdate = () => {
-    onUpdate();
   };
 
   const handleChangeSelected = (value: string[]) => {
@@ -356,7 +362,7 @@ const UserAddDialog = ({
         users={users}
         selectedUsers={selectedUsers}
         isUpdate={isUpdate}
-        onUpdate={handleUpdate}
+        onUpdate={onUpdate}
         onChangeSelected={handleChangeSelected}
       />
     </Dialog>
@@ -365,16 +371,20 @@ const UserAddDialog = ({
 
 interface UserAddButton extends ButtonProps {
   users: UserWithRoles[];
-  subscribers: UserWithRoles[];
+  subscriberIds: string[];
+  onChangeSubscriberIds: (subscriberIds: string[]) => void;
+  onUpdate?: () => void;
 }
 
-const UserAddButton = ({ users, subscribers, ...props }: UserAddButton) => {
-  const initialSelectedUsers = subscribers.map((subscriber) => subscriber.id);
+const UserAddButton = ({
+  users,
+  subscriberIds,
+  onChangeSubscriberIds,
+  onUpdate,
+  ...props
+}: UserAddButton) => {
   const [open, setOpen] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState(initialSelectedUsers);
   const [isUpdate, setIsUpdate] = useState(false);
-
-  const handleUpdate = () => {};
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -385,10 +395,10 @@ const UserAddButton = ({ users, subscribers, ...props }: UserAddButton) => {
   };
 
   const handleChangeSelected = (value: string[]) => {
-    setSelectedUsers(value);
+    onChangeSubscriberIds(value);
     if (
-      value.length === initialSelectedUsers.length &&
-      value.every((item) => initialSelectedUsers.includes(item))
+      value.length === subscriberIds.length &&
+      value.every((item) => subscriberIds.includes(item))
     ) {
       setIsUpdate(false);
     } else {
@@ -402,11 +412,11 @@ const UserAddButton = ({ users, subscribers, ...props }: UserAddButton) => {
       </Button>
       <UserAddDialog
         users={users}
-        selectedUsers={selectedUsers}
+        selectedUsers={subscriberIds}
         isUpdate={isUpdate}
         open={open}
         onClose={handleClose}
-        onUpdate={handleUpdate}
+        onUpdate={onUpdate}
         onChangeSelected={handleChangeSelected}
       />
     </>

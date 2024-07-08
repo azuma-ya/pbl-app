@@ -251,10 +251,10 @@ export const userRouter = router({
       }
     }),
   craeteUserRole: privateProcedure
-    .input(z.object({ roleId: z.string() }))
+    .input(z.object({ userId: z.string(), roleId: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const { roleId } = input;
+        const { userId, roleId } = input;
 
         const user = await ctx.user;
 
@@ -262,6 +262,13 @@ export const userRouter = router({
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: "ユーザーが見つかりません",
+          });
+        }
+
+        if (!user.isAdmin) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "権限がありません",
           });
         }
 
@@ -285,9 +292,25 @@ export const userRouter = router({
           });
         }
 
+        const existingRoleUser = await prisma.roleUser.findUnique({
+          where: {
+            userId_roleId: {
+              userId,
+              roleId,
+            },
+          },
+        });
+
+        if (existingRoleUser) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "すでに追加済みです",
+          });
+        }
+
         await prisma.roleUser.create({
           data: {
-            userId: user.id,
+            userId,
             roleId,
           },
         });
@@ -300,6 +323,41 @@ export const userRouter = router({
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "役職の紐づけに失敗しました",
+          });
+        }
+      }
+    }),
+  getUserById: privateProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { userId } = input;
+
+        const currentUser = await ctx.user;
+
+        if (!currentUser) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        const user = await prisma.user.findUnique({
+          where: {
+            id: userId,
+          },
+        });
+
+        return user;
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "職員の取得に失敗しました",
           });
         }
       }
