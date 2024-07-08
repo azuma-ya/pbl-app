@@ -10,15 +10,25 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 import Select from "@mui/material/Select";
 import * as React from "react";
 
-const Position = () => {
+const SchoolPosition = () => {
   const [age, setAge] = React.useState("");
 
   const handleChange = (event: SelectChangeEvent) => {
     setAge(event.target.value as string);
   };
   return (
-    <Box sx={{ width:"100%" , height:"100vh" , display:"flex" , alignItems:"center" , justifyContent:"center" , flexDirection:"column" , gap:"6rem" }}>
-      <Box sx={{ width:"100%" , minWidth:"20rem" , maxWidth:"24rem" }}>
+    <Box
+      sx={{
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        gap: "6rem",
+      }}
+    >
+      <Box sx={{ width: "100%", minWidth: "20rem", maxWidth: "24rem" }}>
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">教員名</InputLabel>
           <Select
@@ -35,7 +45,7 @@ const Position = () => {
         </FormControl>
       </Box>
 
-      <Box sx={{ width:"100%" , minWidth:"20rem" , maxWidth:"24rem" }}>
+      <Box sx={{ width: "100%", minWidth: "20rem", maxWidth: "24rem" }}>
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">役職</InputLabel>
           <Select
@@ -54,12 +64,13 @@ const Position = () => {
       </Box>
 
       <Box>
-        <Checkbox />権限を付与
+        <Checkbox />
+        権限を付与
       </Box>
 
       <Button
         variant="contained"
-        sx={{ width:"100%" , maxWidth:"50rem" , paddingY:"1rem" }}
+        sx={{ width: "100%", maxWidth: "50rem", paddingY: "1rem" }}
       >
         決定
       </Button>
@@ -67,4 +78,4 @@ const Position = () => {
   );
 };
 
-export default Position;
+export default SchoolPosition;

@@ -1,7 +1,12 @@
 import ThreadNew from "@/components/thread/ThreadNew";
+import { trpc } from "@/trpc/client";
 
-const ThreadNewPage = () => {
-  return <ThreadNew />;
+export const revalidate = 0;
+
+const ThreadNewPage = async () => {
+  const { members } = await trpc.user.getScooleMembers({});
+
+  return <ThreadNew users={members} />;
 };
 
 export default ThreadNewPage;

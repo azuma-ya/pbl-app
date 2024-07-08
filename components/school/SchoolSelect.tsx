@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import type { School } from "@prisma/client";
-import type { ChangeEvent} from "react";
+import type { ChangeEvent } from "react";
 import { useState } from "react";
 
 interface SchoolSelectProps {

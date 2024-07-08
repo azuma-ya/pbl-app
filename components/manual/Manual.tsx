@@ -23,7 +23,6 @@ const Manual = () => {
           <Box sx={{ display: "flex" }}>Group名</Box>
           <Box sx={{ display: "flex" }}>Group名</Box>
         </Box>
-        //card ?
       </Box>
     </Box>
   );

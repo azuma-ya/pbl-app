@@ -108,6 +108,16 @@ export const threadRouter = router({
         where: {
           schoolId: user.schoolId,
         },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+          manuals: true,
+        },
       });
 
       const totalThreads = await prisma.thread.count({
@@ -349,7 +359,7 @@ export const threadRouter = router({
           }
         });
 
-        for (let subscriberId of createSubscriberIds) {
+        for (const subscriberId of createSubscriberIds) {
           await sendSubscribe({ userId: subscriberId, threadId });
         }
       } catch (error) {

@@ -1,13 +1,5 @@
 "use client";
 
-import CommentItem from "@/components/comment/CommentItem";
-import CommentNew from "@/components/comment/CommentNew";
-import ManualAddDialogButton from "@/components/manual/ManualAdd";
-import ThreadProfileButton from "@/components/thread/ThreadProfile";
-import { pusherClient } from "@/lib/pusher/client";
-import { CommentWithUser } from "@/types/comment";
-import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
-import type { UserWithRoles } from "@/types/user";
 import type { ButtonProps } from "@mui/material";
 import {
   Box,
@@ -20,6 +12,15 @@ import {
 import type { Manual } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+
+import CommentItem from "@/components/comment/CommentItem";
+import CommentNew from "@/components/comment/CommentNew";
+import ManualAddDialogButton from "@/components/manual/ManualAdd";
+import ThreadProfileButton from "@/components/thread/ThreadProfile";
+import { pusherClient } from "@/lib/pusher/client";
+import type { CommentWithUser } from "@/types/comment";
+import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
+import type { UserWithRoles } from "@/types/user";
 
 interface ManualItemProps extends ButtonProps {
   manual: Manual;
@@ -75,7 +76,7 @@ const ThreadDetail = ({
     return () => {
       channel.unbind();
     };
-  }, []);
+  }, [thread.id]);
   return (
     <Box
       sx={{
@@ -89,7 +90,7 @@ const ThreadDetail = ({
         <ThreadProfileButton
           userId={userId}
           thread={thread}
-          users={users}
+          users={users.filter((user) => user.id !== userId)}
           manuals={manuals}
           subscribers={thread.subscribers}
           variant="outlined"

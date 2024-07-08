@@ -100,7 +100,7 @@ interface EnhancedManualTableToolbarProps {
   numSelected: number;
   searched: string;
   isUpdate: boolean;
-  changeSearchedHandler: (event: any) => void;
+  changeSearchedHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onUpdate: () => void;
 }
 
@@ -129,7 +129,9 @@ const EnhancedManualTableToolbar = ({
       <TextField
         label="Search"
         value={searched}
-        onChange={(event: any) => changeSearchedHandler(event)}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+          changeSearchedHandler(event)
+        }
         variant="filled"
       />
       <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
@@ -209,7 +211,9 @@ const EnhancedManualTable = ({
     setRows(filteredRows);
   };
 
-  const changeSearchedHandler = (event: any) => {
+  const changeSearchedHandler = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setSearched(event.target.value);
     requestSearch(event.target.value);
   };
@@ -397,7 +401,7 @@ const ManualAddDialogButton = ({
     initialSelectedManuals,
   );
 
-  const { mutate: updateLinkedManual, isLoading } =
+  const { mutate: updateLinkedManual } =
     trpc.thread.updateThreadLinkedManual.useMutation({
       onSuccess: () => {
         toast.success("マニュアル紐づけに更新に成功しました");

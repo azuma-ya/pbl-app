@@ -1,7 +1,7 @@
-import Position from "@/components/school/Position";
+import SchoolPosition from "@/components/school/SchoolPosition";
 
 const PositionPage = () => {
-  return <Position />;
+  return <SchoolPosition />;
 };
 
 export default PositionPage;

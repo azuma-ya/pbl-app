@@ -123,7 +123,7 @@ export const manualRouter = router({
           },
         });
 
-        const manualData = JSON.parse(completion.choices[0]?.message.content!);
+        const manualData = JSON.parse(completion.choices[0]!.message.content!);
 
         // console.log(completion.choices[0]?.message.content);
         // console.log(manualData);
