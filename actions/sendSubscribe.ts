@@ -29,7 +29,7 @@ export const sendSubscribe = async ({
     <div>
       <p>
         ご利用ありがとうございます。<br />
-        あなたのアカウントがスレッドに追加されました。
+        ${user.name} 先生によって、あなたのアカウントがスレッドに追加されました。
       </p>
 
       <p><a href=${process.env.NEXT_PUBLIC_APP_URL}/thread/${threadId}}>スレッドを見る</a></p>
