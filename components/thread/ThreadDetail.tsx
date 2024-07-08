@@ -22,6 +22,8 @@ import type { CommentWithUser } from "@/types/comment";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
 
+export const dynamic = "force-dynamic";
+
 interface ManualItemProps extends ButtonProps {
   manual: Manual;
 }
