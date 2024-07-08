@@ -118,8 +118,8 @@ const Thread = () => {
 
   return (
    <Box>
-    <TableContainer component={Paper} sx={{ marginY:"14rem" }}>
-      <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
+    <TableContainer component={Paper} sx={{ width:"100%" , marginY:"10rem" }}>
+      <Table sx={{ width:"100%" , minWidth: 500 }} aria-label="custom pagination table">
          <TableHead>
           <TableRow>
             <TableCell>作成者名</TableCell>
@@ -170,7 +170,7 @@ const Thread = () => {
           <TableRow>
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-              colSpan={3}
+              colSpan={7}
               count={rows.length}
               rowsPerPage={rowsPerPage}
               page={page}
@@ -190,9 +190,10 @@ const Thread = () => {
         </TableFooter>
       </Table>
     </TableContainer>
- 
-    <Button variant="contained" sx={{  width:"100%" , height:"5rem" , textAlign:"right" , padding:"2rem,3rem" }}>新規スレッド作成</Button>
-  
+
+    <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
+      <Button variant="contained" sx={{ paddingX:"4rem" , paddingY:"1rem" }}>新規スレッド作成</Button>
+    </Box>
    </Box>
     
   );
