@@ -5,6 +5,6 @@ export const pusherClient = new PusherClient(
   {
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
     // authEndpoint は　Pusher がプライベート チャネルの認証を要求するサーバー側のルートです
-    authEndpoint: "/api/pusher/auth",
+    authEndpoint: "/api/trpc",
   },
 );
