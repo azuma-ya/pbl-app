@@ -21,7 +21,6 @@ import { pusherClient } from "@/lib/pusher/client";
 import type { CommentWithUser } from "@/types/comment";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
-import { useRouter } from "next/navigation";
 
 interface ManualItemProps extends ButtonProps {
   manual: Manual;
@@ -53,7 +52,6 @@ const ThreadDetail = ({
   users,
   userId,
 }: ThreadDetailProps) => {
-  const router = useRouter();
   const sm = useMediaQuery("(min-width:600px)");
   const [parentId, setParentId] = useState<string>();
   const [comments, setComments] = useState<CommentWithUser[]>(thread.comments);
@@ -92,12 +90,7 @@ const ThreadDetail = ({
         content,
         parentId,
       }),
-    })
-      .then((data) => data.json())
-      .then((comment: CommentWithUser) => {
-        setParentId(undefined);
-        router.refresh();
-      });
+    });
   };
 
   useEffect(() => {

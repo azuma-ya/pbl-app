@@ -2,10 +2,8 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import prisma from "@/lib/prisma";
-import { getPusherInstance } from "@/lib/pusher/server";
+import { pusherInstance } from "@/lib/pusher/server";
 import { privateProcedure, router } from "@/trpc/server/trpc";
-
-const pusherServer = getPusherInstance();
 
 export const commentRouter = router({
   createComment: privateProcedure
@@ -47,7 +45,7 @@ export const commentRouter = router({
           },
         });
 
-        await pusherServer.trigger(threadId, "new-comment", comment);
+        await pusherInstance.trigger(threadId, "new-comment", comment);
 
         return comment;
       } catch (error) {
@@ -187,7 +185,7 @@ export const commentRouter = router({
           },
         });
 
-        await pusherServer.trigger(
+        await pusherInstance.trigger(
           updatedComment.threadId,
           "update-comment",
           updatedComment,
