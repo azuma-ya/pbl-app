@@ -11,6 +11,7 @@ export const POST = async (req: Request) => {
   const user = await getAuthSession();
   if (!user)
     return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+
   const body = await req.json();
 
   try {

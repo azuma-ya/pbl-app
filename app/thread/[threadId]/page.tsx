@@ -3,6 +3,7 @@ import { getAuthSession } from "@/lib/auth";
 import { trpc } from "@/trpc/client";
 import { Box } from "@mui/material";
 
+export const dynamic = "force-dynamic";
 interface ThreadDetailPageProps {
   params: {
     threadId: string;
