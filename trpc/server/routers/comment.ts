@@ -2,7 +2,6 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import prisma from "@/lib/prisma";
-import { pusherInstance } from "@/lib/pusher/server";
 import { privateProcedure, router } from "@/trpc/server/trpc";
 
 export const commentRouter = router({
@@ -44,8 +43,6 @@ export const commentRouter = router({
             parent: true,
           },
         });
-
-        await pusherInstance.trigger(threadId, "new-comment", comment);
 
         return comment;
       } catch (error) {
@@ -185,12 +182,6 @@ export const commentRouter = router({
           },
         });
 
-        await pusherInstance.trigger(
-          updatedComment.threadId,
-          "update-comment",
-          updatedComment,
-        );
-
         return updatedComment;
       } catch (error) {
         console.log(error);
@@ -233,6 +224,50 @@ export const commentRouter = router({
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "削除に失敗しました",
+          });
+        }
+      }
+    }),
+  getCommentById: privateProcedure
+    .input(z.object({ commentId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { commentId } = input;
+        const user = await ctx.user;
+
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ユーザーが見つかりません",
+          });
+        }
+
+        const comment = await prisma.comment.findFirst({
+          where: {
+            AND: [{ id: commentId }],
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+            parent: true,
+          },
+        });
+
+        return comment;
+      } catch (error) {
+        console.log(error);
+
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "取得に失敗しました",
           });
         }
       }

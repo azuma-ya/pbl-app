@@ -17,10 +17,13 @@ import CommentItem from "@/components/comment/CommentItem";
 import CommentNew from "@/components/comment/CommentNew";
 import ManualAddDialogButton from "@/components/manual/ManualAdd";
 import ThreadProfileButton from "@/components/thread/ThreadProfile";
-import { pusherClient } from "@/lib/pusher/client";
+import { supabase } from "@/lib/supabase";
+import { trpc } from "@/trpc/react";
 import type { CommentWithUser } from "@/types/comment";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface ManualItemProps extends ButtonProps {
   manual: Manual;
@@ -52,53 +55,60 @@ const ThreadDetail = ({
   users,
   userId,
 }: ThreadDetailProps) => {
+  const router = useRouter();
   const sm = useMediaQuery("(min-width:600px)");
   const [parentId, setParentId] = useState<string>();
   const [comments, setComments] = useState<CommentWithUser[]>(thread.comments);
 
-  // const { mutate: createComment, isLoading } =
-  //   trpc.comment.createComment.useMutation({
-  //     onSuccess: () => {
-  //       // toast.success("投稿しました");
-  //       form.reset();
-  //       onChangeParentId(undefined);
-  //       router.refresh();
-  //     },
-  //     onError: (error) => {
-  //       toast.error(error.message);
-  //       console.error(error);
-  //     },
-  //   });
+  const { mutate: createComment } = trpc.comment.createComment.useMutation({
+    onSuccess: () => {
+      setParentId(undefined);
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      console.error(error);
+    },
+  });
+
+  const { mutate: getCommentById } = trpc.comment.getCommentById.useMutation({
+    onSuccess: (comment) => {
+      comment &&
+        setComments((prev) => [...prev, comment as unknown as CommentWithUser]);
+    },
+  });
 
   const handleChangeParentId = (id?: string) => {
     setParentId(id);
   };
 
   const handleCreateComment = async (content: string) => {
-    // createComment({
-    //   threadId,
-    //   content: data.content,
-    //   parentId: parentComment?.id,
-    // });
-    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/comment`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        threadId: thread.id,
-        content,
-        parentId,
-      }),
+    createComment({
+      threadId: thread.id,
+      content,
+      parentId,
     });
   };
 
+  //   await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/comment`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       threadId: thread.id,
+  //       content,
+  //       parentId,
+  //     }),
+  //   });
+  // };
+
   useEffect(() => {
-    const channel = pusherClient
-      .subscribe(thread.id)
-      .bind("new-comment", (data: CommentWithUser) => {
-        setComments((prevComments) => [...prevComments, data]);
-      });
+    // const channel = pusherClient
+    //   .subscribe(thread.id)
+    //   .bind("new-comment", (data: CommentWithUser) => {
+    //     setComments((prevComments) => [...prevComments, data]);
+    //   });
     // .bind("update-comment", (data: CommentWithUser) => {
     //   setComments((prevComments) =>
     //     prevComments.map((comment) =>
@@ -106,8 +116,25 @@ const ThreadDetail = ({
     //     ),
     //   );
     // });
+
+    const channel = supabase
+      .channel(thread.id)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "Comment",
+        },
+        (payload) => {
+          getCommentById({ commentId: payload.new.id });
+        },
+      )
+
+      .subscribe();
     return () => {
-      channel.unbind();
+      // channel.unbind();
+      channel.unsubscribe();
     };
   }, [thread.id]);
   return (

@@ -1,6 +1,5 @@
 import { getAuthSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { pusherInstance } from "@/lib/pusher/server";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -38,7 +37,7 @@ export const POST = async (req: Request) => {
       },
     });
 
-    await pusherInstance.trigger(threadId, "new-comment", comment);
+    // await pusherInstance.trigger(threadId, "new-comment", comment);
 
     return NextResponse.json(comment, {
       status: 200,
