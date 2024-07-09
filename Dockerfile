@@ -19,8 +19,8 @@ ARG DATABASE_URL
 ARG DIRECT_URL
 
 # Generate Prisma client
-COPY prisma/ ./prisma/
-RUN npx prisma generate
+COPY ./prisma/ /app/prisma/
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 
 # Rebuild the source code only when needed
