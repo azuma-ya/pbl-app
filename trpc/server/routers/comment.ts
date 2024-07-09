@@ -83,29 +83,23 @@ export const commentRouter = router({
           });
         }
 
-        const thread = await prisma.thread.findUnique({
-          where: {
-            id: threadId,
-          },
-        });
-
-        if (!thread) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "スレッドが見つかりません",
-          });
-        }
-
-        if (thread.schoolId !== user.schoolId) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "あなたの所属学校ではありません",
-          });
-        }
-
         const comments = await prisma.comment.findMany({
           where: {
             threadId,
+            thread: {
+              OR: [
+                {
+                  subscribers: {
+                    some: {
+                      userId: user.id,
+                    },
+                  },
+                },
+                {
+                  userId: user.id,
+                },
+              ],
+            },
           },
           skip: offset,
           take: limit,
@@ -124,7 +118,23 @@ export const commentRouter = router({
         });
 
         const totalComments = await prisma.comment.count({
-          where: { threadId },
+          where: {
+            threadId,
+            thread: {
+              OR: [
+                {
+                  subscribers: {
+                    some: {
+                      userId: user.id,
+                    },
+                  },
+                },
+                {
+                  userId: user.id,
+                },
+              ],
+            },
+          },
         });
 
         return { comments, totalComments };
@@ -156,29 +166,10 @@ export const commentRouter = router({
           });
         }
 
-        const comment = await prisma.comment.findUnique({
-          where: {
-            id: commentId,
-          },
-        });
-
-        if (!comment) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "コメントが見つかりませんでした",
-          });
-        }
-
-        if (user.id !== comment.userId && !!content) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "コメントの編集権限がありません",
-          });
-        }
-
         const updatedComment = await prisma.comment.update({
           where: {
             id: commentId,
+            userId: user.id,
           },
           data: {
             content,
@@ -230,29 +221,9 @@ export const commentRouter = router({
           });
         }
 
-        const comment = await prisma.comment.findUnique({
+        await prisma.comment.deleteMany({
           where: {
-            id: commentId,
-          },
-        });
-
-        if (!comment) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "コメントが見つかりませんでした",
-          });
-        }
-
-        if (user.id !== comment.userId) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "コメントの編集権限がありません",
-          });
-        }
-
-        await prisma.comment.delete({
-          where: {
-            id: commentId,
+            AND: [{ id: commentId }, { userId: user.id }],
           },
         });
       } catch (error) {

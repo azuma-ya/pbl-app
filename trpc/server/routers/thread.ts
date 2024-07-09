@@ -34,43 +34,46 @@ export const threadRouter = router({
           });
         }
 
-        const thread = await prisma.thread.create({
-          data: {
-            userId: user.id,
-            title,
-            description,
-            schoolId: user.schoolId,
-          },
-        });
-
-        for (const subscriberId of subscriberIds) {
-          const user = await prisma.user.findUnique({
-            where: {
-              id: subscriberId,
-            },
-          });
-
-          if (!user) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "ユーザーが見つかりません",
-            });
-          }
-
-          if (thread?.schoolId !== user.schoolId) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "このユーザーの所属学校ではありません",
-            });
-          }
-
-          await prisma.threadUser.create({
+        const thread = await prisma.$transaction(async (prisma) => {
+          const thread = await prisma.thread.create({
             data: {
-              userId: subscriberId,
-              threadId: thread.id,
+              userId: user.id,
+              title,
+              description,
+              schoolId: user.schoolId!,
             },
           });
-        }
+
+          for (const subscriberId of subscriberIds) {
+            const user = await prisma.user.findUnique({
+              where: {
+                id: subscriberId,
+              },
+            });
+
+            if (!user) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "ユーザーが見つかりません",
+              });
+            }
+
+            if (thread?.schoolId !== user.schoolId) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "このユーザーの所属学校ではありません",
+              });
+            }
+
+            await prisma.threadUser.create({
+              data: {
+                userId: subscriberId,
+                threadId: thread.id,
+              },
+            });
+          }
+          return thread;
+        });
 
         return thread;
       } catch (error) {
