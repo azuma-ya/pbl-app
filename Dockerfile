@@ -19,7 +19,7 @@ ARG DATABASE_URL
 ARG DIRECT_URL
 
 # Generate Prisma client
-COPY prisma ./prisma/
+COPY prisma/ ./prisma/
 RUN npx prisma generate
 
 
