@@ -273,4 +273,3 @@ const DataTable = () => {
     </Grid>
   );
 }
-
