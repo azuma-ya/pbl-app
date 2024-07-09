@@ -2,7 +2,7 @@
 
 import * as Ably from "ably";
 import { AblyProvider, ChannelProvider } from "ably/react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export default function ThreadRooom({
   threadId,
