@@ -15,6 +15,9 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+ARG DATABASE_URL
+ARG DIRECT_URL
+
 # Generate Prisma client
 COPY prisma ./prisma/
 RUN npx prisma generate
