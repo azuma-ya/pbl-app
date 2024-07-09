@@ -11,18 +11,16 @@ import {
 } from "@mui/material";
 import type { Manual } from "@prisma/client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import CommentItem from "@/components/comment/CommentItem";
 import CommentNew from "@/components/comment/CommentNew";
 import ManualAddDialogButton from "@/components/manual/ManualAdd";
 import ThreadProfileButton from "@/components/thread/ThreadProfile";
-import { supabase } from "@/lib/supabase";
 import { trpc } from "@/trpc/react";
 import type { CommentWithUser } from "@/types/comment";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 interface ManualItemProps extends ButtonProps {
@@ -55,15 +53,14 @@ const ThreadDetail = ({
   users,
   userId,
 }: ThreadDetailProps) => {
-  const router = useRouter();
   const sm = useMediaQuery("(min-width:600px)");
   const [parentId, setParentId] = useState<string>();
   const [comments, setComments] = useState<CommentWithUser[]>(thread.comments);
 
   const { mutate: createComment } = trpc.comment.createComment.useMutation({
-    onSuccess: () => {
+    onSuccess: (comment) => {
       setParentId(undefined);
-      router.refresh();
+      setComments((prev) => [...prev, comment as unknown as CommentWithUser]);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -71,12 +68,12 @@ const ThreadDetail = ({
     },
   });
 
-  const { mutate: getCommentById } = trpc.comment.getCommentById.useMutation({
-    onSuccess: (comment) => {
-      comment &&
-        setComments((prev) => [...prev, comment as unknown as CommentWithUser]);
-    },
-  });
+  // const { mutate: getCommentById } = trpc.comment.getCommentById.useMutation({
+  //   onSuccess: (comment) => {
+  //     comment &&
+  //       setComments((prev) => [...prev, comment as unknown as CommentWithUser]);
+  //   },
+  // });
 
   const handleChangeParentId = (id?: string) => {
     setParentId(id);
@@ -103,40 +100,40 @@ const ThreadDetail = ({
   //   });
   // };
 
-  useEffect(() => {
-    // const channel = pusherClient
-    //   .subscribe(thread.id)
-    //   .bind("new-comment", (data: CommentWithUser) => {
-    //     setComments((prevComments) => [...prevComments, data]);
-    //   });
-    // .bind("update-comment", (data: CommentWithUser) => {
-    //   setComments((prevComments) =>
-    //     prevComments.map((comment) =>
-    //       comment.id === data.id ? data : comment,
-    //     ),
-    //   );
-    // });
+  // useEffect(() => {
+  //   // const channel = pusherClient
+  //   //   .subscribe(thread.id)
+  //   //   .bind("new-comment", (data: CommentWithUser) => {
+  //   //     setComments((prevComments) => [...prevComments, data]);
+  //   //   });
+  //   // .bind("update-comment", (data: CommentWithUser) => {
+  //   //   setComments((prevComments) =>
+  //   //     prevComments.map((comment) =>
+  //   //       comment.id === data.id ? data : comment,
+  //   //     ),
+  //   //   );
+  //   // });
 
-    const channel = supabase
-      .channel(thread.id)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "Comment",
-        },
-        (payload) => {
-          getCommentById({ commentId: payload.new.id });
-        },
-      )
+  //   const channel = supabase
+  //     .channel(thread.id)
+  //     .on(
+  //       "postgres_changes",
+  //       {
+  //         event: "INSERT",
+  //         schema: "public",
+  //         table: "Comment",
+  //       },
+  //       (payload) => {
+  //         getCommentById({ commentId: payload.new.id });
+  //       },
+  //     )
 
-      .subscribe();
-    return () => {
-      // channel.unbind();
-      channel.unsubscribe();
-    };
-  }, [thread.id]);
+  //     .subscribe();
+  //   return () => {
+  //     // channel.unbind();
+  //     channel.unsubscribe();
+  //   };
+  // }, [thread.id]);
   return (
     <Box
       sx={{
