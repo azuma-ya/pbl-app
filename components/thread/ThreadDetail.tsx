@@ -78,7 +78,7 @@ const ThreadDetail = ({
     return () => {
       channel.unbind();
     };
-  }, []);
+  }, [thread.id]);
   return (
     <Box
       sx={{
