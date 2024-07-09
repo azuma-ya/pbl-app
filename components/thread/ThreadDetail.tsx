@@ -21,8 +21,7 @@ import { pusherClient } from "@/lib/pusher/client";
 import type { CommentWithUser } from "@/types/comment";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
-
-export const dynamic = "force-dynamic";
+import { useRouter } from "next/navigation";
 
 interface ManualItemProps extends ButtonProps {
   manual: Manual;
@@ -54,12 +53,51 @@ const ThreadDetail = ({
   users,
   userId,
 }: ThreadDetailProps) => {
+  const router = useRouter();
   const sm = useMediaQuery("(min-width:600px)");
   const [parentId, setParentId] = useState<string>();
   const [comments, setComments] = useState<CommentWithUser[]>(thread.comments);
 
+  // const { mutate: createComment, isLoading } =
+  //   trpc.comment.createComment.useMutation({
+  //     onSuccess: () => {
+  //       // toast.success("投稿しました");
+  //       form.reset();
+  //       onChangeParentId(undefined);
+  //       router.refresh();
+  //     },
+  //     onError: (error) => {
+  //       toast.error(error.message);
+  //       console.error(error);
+  //     },
+  //   });
+
   const handleChangeParentId = (id?: string) => {
     setParentId(id);
+  };
+
+  const handleCreateComment = async (content: string) => {
+    // createComment({
+    //   threadId,
+    //   content: data.content,
+    //   parentId: parentComment?.id,
+    // });
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/comment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        threadId: thread.id,
+        content,
+        parentId,
+      }),
+    })
+      .then((data) => data.json())
+      .then((comment: CommentWithUser) => {
+        setParentId(undefined);
+        router.refresh();
+      });
   };
 
   useEffect(() => {
@@ -173,11 +211,11 @@ const ThreadDetail = ({
           </Stack>
           {thread.status === "ACTIVE" && (
             <CommentNew
-              threadId={thread.id}
               parentComment={comments.find(
                 (comment) => comment.id === parentId,
               )}
               onChangeParentId={handleChangeParentId}
+              onCreateComment={handleCreateComment}
             />
           )}
         </Paper>

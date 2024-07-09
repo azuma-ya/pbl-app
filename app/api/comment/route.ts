@@ -40,9 +40,7 @@ export const POST = async (req: Request) => {
       },
     });
 
-    const log = await pusherServer.trigger(threadId, "new-comment", comment);
-
-    console.log(log);
+    await pusherServer.trigger(threadId, "new-comment", comment);
 
     return NextResponse.json(comment, {
       status: 200,
