@@ -4,6 +4,8 @@ import { appRouter } from "@/trpc/server";
 
 export const dynamic = "force-dynamic";
 
+export const maxDuration = 60;
+
 const handlers = async (req: Request) => {
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
