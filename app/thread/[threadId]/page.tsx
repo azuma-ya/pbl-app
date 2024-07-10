@@ -1,11 +1,7 @@
+import ThreadDetail from "@/components/thread/ThreadDetail";
 import { getAuthSession } from "@/lib/auth";
 import { trpc } from "@/trpc/client";
 import { Box } from "@mui/material";
-import dynamic from "next/dynamic";
-
-const ThreadDetail = dynamic(() => import("@/components/thread/ThreadDetail"), {
-  ssr: false,
-});
 
 interface ThreadDetailPageProps {
   params: {

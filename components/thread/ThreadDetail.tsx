@@ -21,6 +21,7 @@ import { trpc } from "@/trpc/react";
 import type { CommentWithUser } from "@/types/comment";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
 import type { UserWithRoles } from "@/types/user";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 interface ManualItemProps extends ButtonProps {
@@ -53,6 +54,7 @@ const ThreadDetail = ({
   users,
   userId,
 }: ThreadDetailProps) => {
+  const router = useRouter();
   const sm = useMediaQuery("(min-width:600px)");
   const [parentId, setParentId] = useState<string>();
   const [comments, setComments] = useState<CommentWithUser[]>(thread.comments);
@@ -61,6 +63,7 @@ const ThreadDetail = ({
     onSuccess: (comment) => {
       setParentId(undefined);
       setComments((prev) => [...prev, comment as unknown as CommentWithUser]);
+      router.refresh();
     },
     onError: (error) => {
       toast.error(error.message);
