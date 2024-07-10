@@ -157,7 +157,7 @@ const Thread = ({ threads }: ThreadProps) => {
           <TableHead>
             <TableRow>
               <TableCell>作成者名</TableCell>
-              <TableCell align="right">タイトル</TableCell>
+              <TableCell align="left">タイトル</TableCell>
               <TableCell align="right">ステータス</TableCell>
               <TableCell align="right">作成日</TableCell>
               <TableCell align="right">更新日</TableCell>

@@ -41,7 +41,7 @@ const headCells: readonly HeadCell[] = [
     id: "title",
     numeric: false,
     disablePadding: true,
-    label: "Title",
+    label: "タイトル",
   },
   {
     id: "content",
