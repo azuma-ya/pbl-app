@@ -175,9 +175,12 @@ const ThreadProfileDialog = ({
         }}
       >
         {thread.title}
-        {thread.userId === userId && sm && statusButton}
+        {((thread.userId === userId && sm) || thread.status === "CLOSED") &&
+          statusButton}
       </DialogTitle>
-      {!sm && <Box sx={{ margin: "0rem 1rem 1rem 1rem" }}>{statusButton}</Box>}
+      {((thread.userId === userId && !sm) || thread.status === "CLOSED") && (
+        <Box sx={{ margin: "0rem 1rem 1rem 1rem" }}>{statusButton}</Box>
+      )}
       <Typography
         variant="subtitle2"
         component="p"
