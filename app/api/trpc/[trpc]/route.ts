@@ -4,7 +4,11 @@ import { appRouter } from "@/trpc/server";
 
 export const dynamic = "force-dynamic";
 
-export const maxDuration = 60;
+export const maxDuration = 59;
+
+export const config = {
+  maxDuration: 59,
+};
 
 const handlers = async (req: Request) => {
   const response = await fetchRequestHandler({
