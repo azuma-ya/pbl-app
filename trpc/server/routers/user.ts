@@ -1,6 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { sendIsAdmin } from "@/actions/sendIsAdmin";
+import { sendRole } from "@/actions/sendRole";
 import prisma from "@/lib/prisma";
 import { privateProcedure, publicProcedure, router } from "@/trpc/server/trpc";
 
@@ -73,6 +75,8 @@ export const userRouter = router({
             isAdmin,
           },
         });
+
+        sendIsAdmin({ userId, isAdmin });
       } catch (error) {
         console.log(error);
 
@@ -314,6 +318,8 @@ export const userRouter = router({
             roleId,
           },
         });
+
+        sendRole({ userId, roleId });
       } catch (error) {
         console.log(error);
 

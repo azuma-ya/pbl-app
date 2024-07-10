@@ -75,6 +75,10 @@ export const threadRouter = router({
           return thread;
         });
 
+        for (const subscriberId of subscriberIds) {
+          await sendSubscribe({ userId: subscriberId, threadId: thread.id });
+        }
+
         return thread;
       } catch (error) {
         console.log(error);

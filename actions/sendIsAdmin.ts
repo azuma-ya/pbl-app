@@ -3,15 +3,12 @@ import { TRPCError } from "@trpc/server";
 import { sendEmail } from "@/actions/sendEmail";
 import prisma from "@/lib/prisma";
 
-interface sendSubscribeOptions {
+interface sendIsAdminOptions {
   userId: string;
-  threadId: string;
+  isAdmin: boolean;
 }
 
-export const sendSubscribe = async ({
-  userId,
-  threadId,
-}: sendSubscribeOptions) => {
+export const sendIsAdmin = async ({ userId, isAdmin }: sendIsAdminOptions) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -23,16 +20,14 @@ export const sendSubscribe = async ({
     });
   }
 
-  const subject = "スレッド参加者のご案内";
+  const subject = "権限のご案内";
 
   const body = `
     <div>
       <p>
         ご利用ありがとうございます。<br />
-        あなたのアカウントがスレッドに追加されました。
+        あなたに「権限」が${isAdmin ? "付与" : "削除"}されました。
       </p>
-
-      <p><a href=${process.env.NEXT_PUBLIC_APP_URL}/thread/${threadId}}>スレッドを見る</a></p>
 
       <p>このメールに覚えのない場合は、このメールを無視するか削除して頂けますようお願いします。</p>
     </div>

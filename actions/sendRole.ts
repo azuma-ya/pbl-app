@@ -3,15 +3,12 @@ import { TRPCError } from "@trpc/server";
 import { sendEmail } from "@/actions/sendEmail";
 import prisma from "@/lib/prisma";
 
-interface sendSubscribeOptions {
+interface sendRoleOptions {
   userId: string;
-  threadId: string;
+  roleId: string;
 }
 
-export const sendSubscribe = async ({
-  userId,
-  threadId,
-}: sendSubscribeOptions) => {
+export const sendRole = async ({ userId, roleId }: sendRoleOptions) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -23,16 +20,25 @@ export const sendSubscribe = async ({
     });
   }
 
-  const subject = "スレッド参加者のご案内";
+  const role = await prisma.user.findFirst({
+    where: { AND: [{ id: roleId, schoolId: user.schoolId }] },
+  });
+
+  if (!role) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "役職が見つかりません",
+    });
+  }
+
+  const subject = "役職のご案内";
 
   const body = `
     <div>
       <p>
         ご利用ありがとうございます。<br />
-        あなたのアカウントがスレッドに追加されました。
+        あなたに「${role.name}」の役職が付与されました。
       </p>
-
-      <p><a href=${process.env.NEXT_PUBLIC_APP_URL}/thread/${threadId}}>スレッドを見る</a></p>
 
       <p>このメールに覚えのない場合は、このメールを無視するか削除して頂けますようお願いします。</p>
     </div>
