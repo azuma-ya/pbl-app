@@ -32,7 +32,7 @@ export const sendSubscribe = async ({
         あなたのアカウントがスレッドに追加されました。
       </p>
 
-      <p><a href=${process.env.NEXT_PUBLIC_APP_URL}/thread/${threadId}}>スレッドを見る</a></p>
+      <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/thread/${threadId}" >スレッドを見る</a></p>
 
       <p>このメールに覚えのない場合は、このメールを無視するか削除して頂けますようお願いします。</p>
     </div>
