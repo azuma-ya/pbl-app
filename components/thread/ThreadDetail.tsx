@@ -11,12 +11,13 @@ import {
 } from "@mui/material";
 import type { Manual } from "@prisma/client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import CommentItem from "@/components/comment/CommentItem";
 import CommentNew from "@/components/comment/CommentNew";
 import ManualAddDialogButton from "@/components/manual/ManualAdd";
 import ThreadProfileButton from "@/components/thread/ThreadProfile";
+import { pusherClient } from "@/lib/pusher";
 import { trpc } from "@/trpc/react";
 import type { CommentWithUser } from "@/types/comment";
 import type { ThreadWithCommentsManualsSubsribers } from "@/types/thread";
@@ -60,10 +61,8 @@ const ThreadDetail = ({
   const [comments, setComments] = useState<CommentWithUser[]>(thread.comments);
 
   const { mutate: createComment } = trpc.comment.createComment.useMutation({
-    onSuccess: (comment) => {
+    onSuccess: () => {
       setParentId(undefined);
-      setComments((prev) => [...prev, comment as unknown as CommentWithUser]);
-      router.refresh();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -103,40 +102,17 @@ const ThreadDetail = ({
   //   });
   // };
 
-  // useEffect(() => {
-  //   // const channel = pusherClient
-  //   //   .subscribe(thread.id)
-  //   //   .bind("new-comment", (data: CommentWithUser) => {
-  //   //     setComments((prevComments) => [...prevComments, data]);
-  //   //   });
-  //   // .bind("update-comment", (data: CommentWithUser) => {
-  //   //   setComments((prevComments) =>
-  //   //     prevComments.map((comment) =>
-  //   //       comment.id === data.id ? data : comment,
-  //   //     ),
-  //   //   );
-  //   // });
+  useEffect(() => {
+    const channel = pusherClient
+      .subscribe(thread.id)
+      .bind("new-comment", (data: CommentWithUser) => {
+        setComments((prevComments) => [...prevComments, data]);
+      });
 
-  //   const channel = supabase
-  //     .channel(thread.id)
-  //     .on(
-  //       "postgres_changes",
-  //       {
-  //         event: "INSERT",
-  //         schema: "public",
-  //         table: "Comment",
-  //       },
-  //       (payload) => {
-  //         getCommentById({ commentId: payload.new.id });
-  //       },
-  //     )
-
-  //     .subscribe();
-  //   return () => {
-  //     // channel.unbind();
-  //     channel.unsubscribe();
-  //   };
-  // }, [thread.id]);
+    return () => {
+      channel.unbind();
+    };
+  }, [thread.id]);
   return (
     <Box
       sx={{

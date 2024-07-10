@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import prisma from "@/lib/prisma";
+import { pusherServer } from "@/lib/pusher";
 import { privateProcedure, router } from "@/trpc/server/trpc";
 
 export const commentRouter = router({
@@ -43,6 +44,8 @@ export const commentRouter = router({
             parent: true,
           },
         });
+
+        await pusherServer.trigger(threadId, "new-comment", comment);
 
         return comment;
       } catch (error) {
