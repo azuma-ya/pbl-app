@@ -175,7 +175,8 @@ const ThreadProfileDialog = ({
         }}
       >
         {thread.title}
-        {((thread.userId === userId && sm) || thread.status === "CLOSED") &&
+        {sm &&
+          (thread.userId === userId || thread.status === "CLOSED") &&
           statusButton}
       </DialogTitle>
       {!sm && thread.status === "CLOSED" && (
