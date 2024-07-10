@@ -126,7 +126,9 @@ const ThreadDetail = ({
         <ThreadProfileButton
           userId={userId}
           thread={thread}
-          users={users.filter((user) => user.id !== userId)}
+          users={users.filter(
+            (user) => user.id !== userId || user.id !== thread.userId,
+          )}
           manuals={manuals}
           subscribers={thread.subscribers}
           variant="outlined"
