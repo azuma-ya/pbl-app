@@ -1,5 +1,6 @@
 "use client";
 
+import { ManualType } from "@/types/manual";
 import {
   Button,
   Card,
@@ -15,42 +16,15 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const Manual = () => {
-  return (
-    <Box>
-      <TextField>
-        <Box
-          component="form"
-          sx={{
-            "& .MuiTextField-root": { m: 1, width: "25ch" },
-          }}
-          noValidate
-          autoComplete="off"
-        >
-          <div>
-            <TextField
-              required
-              id="outlined-required"
-              label="Required"
-              defaultValue="Hello World"
-            />
-          </div>
-        </Box>
-      </TextField>
-      <RandomCardDisplay />
-      <DataTable />
-    </Box>
-  );
-};
-
-export default Manual;
 
 export function SimpleContainer() {
   return (
@@ -153,77 +127,122 @@ interface Row {
   createdAt: string;
 }
 
-const DataTable = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [rows] = useState<Row[]>([
-    {
-      id: 1,
-      name: "Document A",
-      groupName: "Group 1",
-      creator: "John Doe",
-      createdAt: "2023-07-01",
-    },
-    {
-      id: 2,
-      name: "Document B",
-      groupName: "Group 2",
-      creator: "Jane Smith",
-      createdAt: "2023-07-02",
-    },
-    {
-      id: 3,
-      name: "Document C",
-      groupName: "Group 1",
-      creator: "Michael Johnson",
-      createdAt: "2023-07-03",
-    },
-  ]);
+interface DataTableProps {
+  manuals: ManualType[];
+}
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+const DataTable = ({ manuals }: DataTableProps) => {
+  const router = useRouter();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searched, setSearched] = useState("");
+  const [rows, setRows] = useState(manuals);
+
+  const requestSearch = (searchedVal: string) => {
+    const filteredRows = manuals.filter((row) => {
+      return row.title?.toLowerCase().includes(searchedVal.toLowerCase());
+    });
+    setRows(filteredRows);
   };
 
-  const filteredRows = rows.filter(
-    (row) =>
-      row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.groupName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.creator.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.createdAt.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const changeSearchedHandler = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setSearched(event.target.value);
+    requestSearch(event.target.value);
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
+    router.push(`/manual/${id}`);
+  };
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   return (
-    <Grid container justifyContent="center" style={{ marginTop: "20px" }}>
+    <Grid
+      justifyContent="center"
+      style={{ marginTop: "20px", width: "100%", maxWidth: 900 }}
+    >
       <Grid item xs={10}>
         <TextField
-          label="Search"
+          label="検索する"
           variant="outlined"
-          value={searchTerm}
-          onChange={handleSearchChange}
+          value={searched}
+          onChange={changeSearchedHandler}
           style={{ marginBottom: "10px", width: "100% " }}
         />
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="マニュアル一覧">
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Group Name</TableCell>
-                <TableCell>Creator</TableCell>
-                <TableCell>Created At</TableCell>
+                <TableCell>タイトル</TableCell>
+                <TableCell>作成日</TableCell>
+                <TableCell>更新日</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredRows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.groupName}</TableCell>
-                  <TableCell>{row.creator}</TableCell>
-                  <TableCell>{row.createdAt}</TableCell>
+              {rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  hover
+                  onClick={(event) => handleClick(event, row.id)}
+                >
+                  <TableCell>{row.title}</TableCell>
+                  <TableCell>
+                    {format(new Date(row.createdAt), "yyyy/MM/dd HH:mm")}
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(row.updatedAt), "yyyy/MM/dd HH:mm")}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[]}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Grid>
     </Grid>
   );
 };
+
+interface ManualProps {
+  manuals: ManualType[];
+}
+
+const Manual = ({ manuals }: ManualProps) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+      }}
+    >
+      <DataTable manuals={manuals} />
+    </Box>
+  );
+};
+
+export default Manual;

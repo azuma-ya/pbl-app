@@ -49,7 +49,7 @@ const ManualDetail = ({ manual }: ManualDetailProps) => {
             編集する
           </Button>
         </Box>
-        <Typography variant="h3" component="h1">
+        <Typography variant={sm ? "h3" : "h5"} component="h1">
           {manual.title}
         </Typography>
         <Box
@@ -69,7 +69,7 @@ const ManualDetail = ({ manual }: ManualDetailProps) => {
             }
           />
         </Box>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]} className="markdown">
           {manual.content}
         </ReactMarkdown>
       </Stack>

@@ -130,7 +130,7 @@ interface ThreadProps {
 const Thread = ({ threads }: ThreadProps) => {
   const router = useRouter();
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage] = React.useState(5);
+  const [rowsPerPage] = React.useState(10);
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
