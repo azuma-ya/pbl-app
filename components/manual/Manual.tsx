@@ -1,6 +1,6 @@
 "use client";
 
-import { ManualType } from "@/types/manual";
+import type { ManualType } from "@/types/manual";
 import {
   Button,
   Card,
@@ -119,14 +119,6 @@ export const RandomCardDisplay = () => {
   );
 };
 
-interface Row {
-  id: number;
-  name: string;
-  groupName: string;
-  creator: string;
-  createdAt: string;
-}
-
 interface DataTableProps {
   manuals: ManualType[];
 }
@@ -168,8 +160,8 @@ const DataTable = ({ manuals }: DataTableProps) => {
   };
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  // const emptyRows =
+  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   return (
     <Grid
