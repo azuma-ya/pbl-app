@@ -1,6 +1,5 @@
 "use client";
 
-import type { ManualType } from "@/types/manual";
 import {
   Button,
   Card,
@@ -25,6 +24,8 @@ import TextField from "@mui/material/TextField";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import type { ManualType } from "@/types/manual";
 
 export function SimpleContainer() {
   return (
