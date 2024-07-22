@@ -74,6 +74,7 @@ const CommentItem = ({
           </Typography>
         )}
         <Button
+          style={{ textTransform: "none" }}
           variant="outlined"
           color={comment.id === parentId ? "info" : "primary"}
           onClick={handleChangeParentId}
