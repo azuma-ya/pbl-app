@@ -344,7 +344,7 @@ export const threadRouter = router({
         await prisma.$transaction(async (prisma) => {
           await prisma.threadUser.deleteMany({
             where: {
-              threadId: {},
+              threadId,
             },
           });
 
