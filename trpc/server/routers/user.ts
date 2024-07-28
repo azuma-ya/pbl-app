@@ -240,6 +240,21 @@ export const userRouter = router({
           },
         });
 
+        const schoolThreads = await prisma.thread.findMany({
+          where: {
+            schoolId,
+          },
+        });
+
+        for (const thread of schoolThreads) {
+          await prisma.threadUser.create({
+            data: {
+              userId: user.id,
+              threadId: thread.id,
+            },
+          });
+        }
+
         return updatedUser;
       } catch (error) {
         console.log(error);
