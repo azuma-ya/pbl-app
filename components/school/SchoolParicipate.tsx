@@ -67,9 +67,7 @@ const SchoolParticipateDialog = ({
           user: {
             schoolId: user.schoolId,
           },
-        })
-          .then(() => router.refresh())
-          .then(() => router.push("/"));
+        }).then(() => (window.location.href = "/"));
       },
       onError: (error) => {
         toast.error("学校の参加に失敗しました");
